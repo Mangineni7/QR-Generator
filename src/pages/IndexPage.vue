@@ -1,0 +1,988 @@
+<template>
+  <q-page class="flex justify-center">
+    <div class="q-pa-md first-div" >
+
+       <div class="flex flex-center" v-if="showLoader">
+       <img src="../statics/Animation - 1713955201690.gif"  />
+       </div>
+      <div  style="width:100%;" >
+      <q-form class="q-gutter-md  ">
+        <div v-if="openUrl">
+        <div>
+        <q-input filled v-model="url" label="Enter URL for QR code" placeholder="http://www.example.com" required class="url-input" @keyup="checkUrl" />
+         <span style="color:red;" v-if="error">url must starts with http or https and enter valid url</span>
+        </div>
+        </div>
+        <div class="flex flex-center q-mt-xl" v-if="openUrl">
+        <q-btn @click="generateQRCode(this.pdfUrl)" label="Generate QR Code" color="primary" />
+      </div>
+        <!-- <div  v-if="openPdf && !showLoader">
+       <input type="file" accept=".pdf" @change="handlePdfUpload" style="display: none;" ref="pdfInput" class="url-input"  />
+
+       <div class="flex flex-center q-mt-xl">
+      <q-input filled  v-model="selectedPdfName" label="Selecte PDF" class="pdf-input"   >
+      <template v-slot:append>
+         <div style="width:50px">
+        <q-btn flat @click="openPdfUploadDialog"   size="sm" ><img src="/attachment.gif" style="width:30px;height:30px"></q-btn>
+         </div>
+      </template>
+      </q-input>
+       </div>
+      </div> -->
+      </q-form>
+      </div>
+      <q-form v-if="openPdf&&!showLoader">
+      <div class="q-mt-sm">
+       <input type="file" accept=".pdf" @change="handlePdfUpload" style="display: none;" ref="pdfInput" />
+
+       <div class="flex flex-center q-mt-lg">
+      <q-input filled  v-model="selectedPdfName" label="Selecte PDF" class="pdf-input"   >
+      <template v-slot:append>
+         <div style="width:50px">
+        <q-btn flat @click="openPdfUploadDialog"  color="primary" size="sm" ><img src="/attachment.gif" style="width:30px;height:30px"></q-btn>
+         </div>
+      </template>
+      </q-input>
+       </div>
+        <div class="flex flex-center q-mt-xl">
+       <q-btn @click="uploadPdfToFirebase(this.files)"  label="Generate Qr Code" color="primary"  />
+       </div>
+       <!-- <div class="flex flex-center q-mt-sm" >
+         <q-input filled v-model="fgColor" label="Foreground Color" placeholder="#000000" required>
+          <template v-slot:append>
+            <q-btn icon="palette" @click="showColorPickerFg" class="color-picker" :style="{backgroundColor:fgColor}" />
+          </template>
+        </q-input>
+          </div> -->
+
+      </div>
+      </q-form>
+      <div class="flex justify-between colors q-mt-lg" style="width:100%"  v-if="qrCodeDataUrl&&this.addColors">
+          <div>
+         <q-input filled v-model="fgColor" label="Foreground Color" placeholder="#000000" required>
+          <template v-slot:append>
+            <q-btn icon="palette" @click="showColorPickerFg" class="color-picker" :style="{backgroundColor:fgColor}" />
+          </template>
+        </q-input>
+          </div>
+          <div class="bgInput">
+
+        <q-input filled v-model="bgColor" label="Background Color" required>
+          <template v-slot:append>
+            <q-btn icon="palette" @click="showColorPickerBg" class="color-picker" :style="{backgroundColor:bgColor}" />
+          </template>
+        </q-input>
+          </div>
+        </div>
+        <q-color @click="generateQRStyles" v-model="fgColor" v-if="showFgColorPicker" class="color-picker-overlay1" />
+        <q-color @click="generateQRStyles"  v-model="bgColor" v-if="showBgColorPicker" class="color-picker-overlay2" />
+
+
+
+      <h6 v-if="qrCodeDataUrl && this.addFrame">Add frames</h6>
+      <div class="frames">
+      <div style=" display: inline-flex; " v-if="qrCodeDataUrl && this.addFrame">
+        <q-btn @click="selectedFrame('simple')" style="margin-left:40px"> <div style="display: flex; flex-direction: column; ">
+          <div style="width:50px;height:50px;border:2px solid black;"></div>
+          <div style="width:60px;height:15px;background-color:black;margin-left:-5px;color:white;border-radius:5px;border-top-right-radius:0px;border-top-left-radius:0px"><span style="font-size:8px;">scan me</span></div>
+        </div></q-btn>
+        <q-btn @click="selectedFrame('bold')" style="margin-left:40px"> <div style="display: flex; flex-direction: column; ">
+          <div style="width:50px;height:50px;border:4px solid black"></div>
+         <div style="width:60px;height:15px;background-color:black;margin-left:-5px;color:white;border-radius:5px;border-top-right-radius:0px;border-top-left-radius:0px"><span style="font-size:8px;">scan me</span></div>
+       </div> </q-btn>
+        <q-btn @click="selectedFrame('dotted')" style="margin-left:40px"> <div style="display: flex; flex-direction: column; ">
+          <div style="width:50px;height:50px;border:2px dashed black"></div>
+          <div style="width:60px;height:15px;background-color:black;margin-left:-5px;color:white;border-radius:5px;border-top-right-radius:0px;border-top-left-radius:0px"><span style="font-size:8px;">scan me</span></div>
+         </div> </q-btn>
+        <q-btn @click="selectedFrame('double')" style="margin-left:40px"> <div style="display: flex; flex-direction: column; ">
+           <div style="width:50px;height:50px;border:4px double black"></div>
+           <div style="width:60px;height:15px;background-color:black;margin-left:-5px;color:white;border-radius:5px;border-top-right-radius:0px;border-top-left-radius:0px"><span style="font-size:8px;">scan me</span></div>
+          </div> </q-btn>
+      </div>
+      </div>
+      <div v-if="qrCodeDataUrl && this.addFrame" class="q-mt-xl flex justify-between ">
+          <q-input filled v-model="borderColor" @input="generateQRCode" label="Frame Color" class="addStyles" required >
+            <template v-slot:append>
+              <q-btn icon="palette" @click="showColorPickerFrame"  :style="{backgroundColor:borderColor}" />
+            </template>
+          </q-input>
+           <q-btn @click="generateQRCode" label="Add Frame Color" color="positive" class="addStyles" />
+            <q-color @click="generateQRCode(this.padfUrl)" v-model="borderColor" v-if="showFrameColorPicker" class="color-picker-overlay3" />
+        </div>
+         <div class=" q-mt-md flex justify-between " style="max-width:100%" v-if="qrCodeDataUrl && this.addFrame">
+          <q-input filled v-model="text" label="Text" class="text" >
+            <template v-slot:append>
+                <q-btn icon="font_download" @click="toggleFontOptions" />
+           </template>
+          </q-input>
+
+
+         <q-input filled v-model="textcolor" label="Text-color" class="text bgInput" >
+          <template v-slot:append>
+            <q-btn icon="palette" @click="showTextColor" :style="{backgroundColor:textcolor}"></q-btn>
+          </template>
+         </q-input>
+         <q-color @click="generateQRCode(this.pdfUrl)" v-model="textcolor" v-if="showtextColorPicker" class="color-picker-overlay4" />
+         </div>
+         <div class="relative-container">
+         <div v-if="fontSelector" class="font-options-overlay">
+          <div class="font-options">
+          <div v-for="font in fontOptions" :key="font" @click="applyFontStyle(font)" style="cursor:pointer">
+              {{ font }}
+              </div>
+          </div>
+         </div>
+      </div>
+
+      <h6 v-if="qrCodeDataUrl && this.addSvg">Add Svg</h6>
+      <div class="image-frames-scroll">
+      <div class="class" v-if="qrCodeDataUrl && this.addSvg">
+        <q-btn @click="selectedImageFrame('frame1')"><img src="/scannerFrameGift3.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+        <q-btn @click="selectedImageFrame('frame2')"><img src="/scanmeMobile.webp" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+         <q-btn @click="selectedImageFrame('frame3')"><img src="/scanMe2Triangle.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+          <q-btn @click="selectedImageFrame('frame4')"><img src="/scan me  simple.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+           <q-btn @click="selectedImageFrame('frame5')"><img src="/scanMeBag.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+           <q-btn @click="selectedImageFrame('frame6')"><img src="/scanMe1.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+           <q-btn @click="selectedImageFrame('frame7')"><img src="/scanMe shapes.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+      </div>
+      </div>
+
+      <div v-if="qrCodeDataUrl && this.addImg">
+        <h6>Add Image</h6>
+        <div>
+      <input type="file" accept="image/*" @change="handleImageUpload" style="display: none;" ref="imageInput" />
+      <q-btn @click="openImageUploadDialog" > <img src="/image.png" style="width:100px;height:100px" ></q-btn>
+        </div>
+        <div class="flex flex-column q-mt-md">
+        <span class="q-mr-lg">Logo Size</span>
+       <q-slider v-model="overlaySize" :min="10" :max="50" label
+       style="width:300px;" @change="generateQRCode(this.pdfUrl)"></q-slider>
+
+      </div>
+      </div>
+    </div>
+    <div class="second-div"  >
+      <div class="qr-container" >
+        <div  class="q-mt-xl flex flex-center">
+          <!-- Adjusted image container for QR code and frame -->
+          <div class="qr-image-container ">
+            <img src="/transparentQr.png" alt="QR Code" v-if="!qrCodeDataUrl" style="width:200px;height:200px" />
+            <img :src="qrCodeDataUrl"  />
+            <div v-if="qrCodeDataUrl && selectedImageFramePath === ''"  :style="{ width: scanMeWidth + 'px', height: scanMeHeight + 'px',
+            backgroundColor: frameColor ? frameColor : 'black',color: this.textcolor,
+             marginLeft: '-15px', marginRight: '-15px', borderRadius:'20px',
+             borderTopRightRadius:'0px',borderTopLeftRadius:'0px',
+             display:'flex', alignItems:'center' ,justifyContent:'center',marginTop:'-6px', fontFamily:this.selectedFont }"><span>{{this.text}}</span> </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-center " v-if="qrCodeDataUrl" >
+        <q-btn @click="downloadQR" label="Download QR Code" color="primary" class="download-btn"   />
+      </div>
+       <div v-if="download" class=" q-mt-lg download">
+           <q-btn @click="downloadQRCode('png')" label="Download Png" color="primary" class="downloadWidth"   />
+            <q-btn @click="downloadQRCode('jpg')" label="Download Jpg" color="primary" class="downloadWidth"  />
+             <q-btn @click="downloadQRCode('pdf')" label="Download pdf" color="primary" class="downloadWidth"    />
+        </div>
+    </div>
+
+  </q-page>
+</template>
+
+<script>
+import qrcode from 'qrcode-generator'
+import jsPDF from 'jspdf'
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAfWC9HXTkDaAZS4K_NjDd57gti-p8sJZw",
+  authDomain: "my-project-ab214.firebaseapp.com",
+  projectId: "my-project-ab214",
+  storageBucket: "my-project-ab214.appspot.com",
+  messagingSenderId: "414297923372",
+  appId: "1:414297923372:web:673058aad62b421775d689",
+  measurementId: "G-J31JCPQ67H"
+};
+
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+export default {
+  data() {
+    return {
+      pdfUrl:'',
+      files:'',
+      overlaySize:30,
+      overlayDrawImage:false,
+      showLoader:false,
+      selectedPdfName:'',
+      qrCodeUrl:'',
+      text: 'Scan me',
+      fontSelector:false,
+      download:false,
+      showtextColorPicker:false,
+      textcolor:'#FFFFFF',
+      error:false,
+      url: '',
+      fgColor: '#000000',
+      bgColor: '#FFFFFF',
+      borderColor: '#000000',
+      frameColor: '',
+      qrCodeDataUrl: '',
+      selectedFrameStyle: 'none',
+      scanMeWidth: 130,
+      scanMeHeight: 40,
+      showFgColorPicker: false,
+      showBgColorPicker: false,
+      showFrameColorPicker: false,
+      selectedColor: '',
+      selectedImageFramePath: '',
+      overlayImageElement: null,
+      generatingQr: false,
+      selectedFont: 'Arial, sans-serif', // Default selected font
+     fontOptions: [ 'Arial, sans-serif' ,'Helvetica, sans-serif'  , 'Times New Roman, serif' ,
+                    'Courier New, monospace' , 'Verdana, Geneva, sans-serif' ,'Georgia, serif',
+                    'Palatino, serif','Garamond, serif',  'Bookman, serif',
+                    'Trebuchet MS, sans-serif',   'Arial Black, sans-serif', 'Impact, sans-serif', 'wide'
+],
+    };
+  },
+  computed: {
+    addFrame() {
+      return this.$store.state.addFrames;
+    },
+    addSvg() {
+      return this.$store.state.addSvg
+    },
+    addImg() {
+      return this.$store.state.addImg
+    },
+    openUrl(){
+      return this.$store.state.openUrl
+    },
+    openPdf(){
+      return this.$store.state.openPdf
+    },
+    addColors(){
+      return this.$store.state.addColors
+    }
+
+  },
+
+  methods: {
+
+    stylesShow(){
+      if(!this.qrCodeDataUrl){
+        this.$q.notify({
+          color:'negative',
+          message:'please Enter url And Create Qr Code '
+        })
+        return;
+       }
+
+    },
+    toggleFontOptions() {
+    this.fontSelector = !this.fontSelector;
+  },
+    //
+    applyFontStyle(font) {
+      this.selectedFont = font
+    },
+    downloadQR() {
+      this.download =!this.download
+    },
+    generateQRStyles() {
+      if(this.generatingQr || !this.url){
+
+        this.generateQRCode(this.pdfUrl)
+      }
+
+    },
+  openImageUploadDialog() {
+      this.$refs.imageInput.click();
+    },
+    handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+          this.overlayImage(img);
+        };
+      };
+
+    },
+   overlayImage(overlayImage) {
+
+    this.overlayImageElement = overlayImage
+
+    this.generateQRCode();
+    console.log(this.addFrame)
+
+},
+  checkUrl() {
+
+    const urlRegex = /^(http:\/\/|https:\/\/)[a-zA-Z0-9\-:._\/]+$/;
+
+  // Check if the URL matches the regular expression
+  if (!urlRegex.test(this.url.trim())) {
+    this.error = true; // URL doesn't match the pattern
+    return;
+  }
+
+  this.error = false;
+  },
+    selectedFrame(frame) {
+      this.selectedFrameStyle = frame;
+      this.selectedImageFramePath = '';
+      this.generateQRCode();
+    },
+    selectedImageFrame(frame) {
+      switch (frame) {
+        case 'frame1':
+          this.selectedImageFramePath = '/scannerFrameGift3.jpg';
+          break;
+        case 'frame2':
+          this.selectedImageFramePath = '/scanmeMobile.webp';
+          break;
+           case 'frame3':
+          this.selectedImageFramePath = '/scanMe2Triangle.jpg';
+          break;
+          case 'frame4':
+          this.selectedImageFramePath = '/scan me  simple.jpg';
+          break;
+          case 'frame5':
+          this.selectedImageFramePath = '/scanMeBag.jpg';
+          break;
+          case 'frame6':
+          this.selectedImageFramePath = '/scanMe1.jpg';
+          break;
+          case 'frame7':
+          this.selectedImageFramePath = '/scanMe shapes.jpg';
+          break;
+        default:
+          this.selectedImageFramePath = '';
+      }
+      this.generateQRCode(this.pdfUrl)
+    },
+    showColorPickerFg() {
+      this.showFgColorPicker = !this.showFgColorPicker;
+    },
+    showColorPickerBg() {
+      this.showBgColorPicker = !this.showBgColorPicker;
+    },
+    showColorPickerFrame() {
+      this.showFrameColorPicker = !this.showFrameColorPicker;
+    },
+   showTextColor(){
+
+    this.showtextColorPicker = ! this.showtextColorPicker;
+
+   },
+   openPdfUploadDialog() {
+      this.$refs.pdfInput.click();
+    },
+
+   handlePdfUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      this.selectedPdfName = file.name
+      // Upload the selected PDF file to Firebase Storage
+      this.files= file
+    },
+    async uploadPdfToFirebase(file) {
+      if(!file){
+        this.$q.notify({
+          color: 'negative',
+          message:'Please enter a URL or PDF to generate its QR code.'
+
+        })
+        return
+      }
+      try {
+        this.showLoader = true
+        console.log('show loader :' + this.showLoader);
+        const storageRef = ref(storage, file.name);
+        await uploadBytes(storageRef, file);
+        const pdfUrl = await getDownloadURL(storageRef);
+        const shortUrl = await this.shortenUrl(pdfUrl);
+        this.pdfUrl = shortUrl
+        this.generateQRCode(shortUrl);
+      } catch (error) {
+        console.error('Error uploading PDF to Firebase:', error);
+      }
+    },
+    async shortenUrl(url) {
+  try {
+    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to shorten URL');
+    }
+
+    return response.text();
+  } catch (error) {
+    console.error('Error shortening URL:', error);
+    return url; // Return original URL if there's an error
+  }
+},
+    generateQRCode(pdfUrl = this.pdfUrl) {
+      this.generatingQr = true
+      console.log('padfUrl: ' , pdfUrl);
+      console.log('Url: ' , this.url);
+      const ispdfUrl = pdfUrl
+  if (!this.url.trim() && !ispdfUrl) {
+    this.$q.notify({
+      color: 'negative',
+      message: 'Please enter a URL or PDF to generate its QR code.',
+    });
+    return;
+  }
+
+  if (!this.error) {
+    let dataToAdd = '';
+    if ((this.url.trim() && this.openUrl) || (this.openPdf && !pdfUrl) ) {
+      dataToAdd = this.url;
+    } else if ((pdfUrl && this.openPdf) || (this.openUrl && !this.url)) {
+
+      dataToAdd = pdfUrl;
+    }
+
+    console.log('addFrame :'+this.addFrame)
+    this.frameColor = this.borderColor;
+    console.log('screating qr')
+     this.showLoader = false
+    const qr = qrcode(0, 'H');
+    qr.addData(dataToAdd);
+    qr.make();
+
+    console.log(this.selectedFont)
+    const numCells = qr.getModuleCount();
+
+    console.log("numcells : "+numCells)
+    const cellSize = 120 / numCells;
+
+    console.log("cellSize : "+ cellSize)
+    const margin = cellSize * 7;
+
+    console.log("margin : "+ margin)
+    const size = numCells * cellSize + margin * 2;
+    console.log(size)
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = size;
+    canvas.height = size;
+
+    context.fillStyle = this.bgColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+
+
+    for (let row = 0; row < numCells; row++) {
+      for (let col = 0; col < numCells; col++) {
+        if (qr.isDark(row, col)) {
+          context.fillStyle = this.fgColor;
+          context.fillRect(col * cellSize + margin, row * cellSize + margin, cellSize, cellSize);
+        }
+      }
+    }
+
+    if (this.selectedImageFramePath ||(this.selectedImageFramePath && this.overlayDrawImage)  ) {
+      this.drawImageFrame(context, canvas.width, canvas.height,pdfUrl);
+    } else {
+      this.drawFrame(context, canvas.width, canvas.height);
+    }
+
+    if (this.overlayImageElement) {
+      // Calculate the position to place the image icon in the middle of the QR code
+      const iconSize = this.overlaySize; // Size of the image icon
+      const iconX = (size - iconSize) / 2;
+      const iconY = (size - iconSize) / 2;
+
+      context.drawImage(this.overlayImageElement, iconX, iconY, iconSize, iconSize);
+
+    }
+
+    this.qrCodeDataUrl = canvas.toDataURL();
+    this.scanMeWidth = `${size + 30}`;
+    this.$store.commit('toggleQrcode', this.qrCodeDataUrl);
+  }
+},
+drawImageFrame(context, width, height,pdfUrl) {
+  this.overlayDrawImage = true
+  const img = new Image();
+
+  img.onload = () => {
+    const imageWidth = 200; // Set the width of the frame image
+    const imageHeight = 250; // Set the height of the frame image
+
+    const canvasWidth = Math.max(width, imageWidth);
+    const canvasHeight = Math.max(height, imageHeight);
+
+    const imageX = (canvasWidth - imageWidth) / 2;
+    console.log('imageX : '+imageX)
+    const imageY = (canvasHeight - imageHeight) / 2;
+
+    let qrX, qrY;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    // Draw the frame image
+    ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
+
+     let data = '';
+    if ((this.url.trim() && this.openUrl) || (this.openPdf && !this.pdfUrl)) {
+      data = this.url;
+    } else if ((this.pdfUrl && this.openPdf) || (this.openUrl && !this.url)) {
+      data  = this.pdfUrl;
+    }
+
+    // Generate the QR code
+    const qr = qrcode(0, 'H');
+    qr.addData(data);
+    qr.make();
+
+    const numCells = qr.getModuleCount();
+    const cellSize = 120 / numCells;
+    const margin = cellSize * 7;
+    const qrSize = numCells * cellSize + margin * 2;
+
+    // Calculate the position to center the QR code within the image frame
+    qrX = (canvasWidth - qrSize) / 2;
+    qrY = (canvasHeight - qrSize) / 2;
+
+    // Adjust the position if needed for better appearance
+    if (this.selectedImageFramePath === '/scanMeBag.jpg' || this.selectedImageFramePath === '/scanMe1.jpg' || this.selectedImageFramePath === '/scanMe shapes.jpg') {
+      qrY += 20; // Move QR code down for these frame images
+    } else {
+      qrY -= 20; // Move QR code up for other frame images
+    }
+
+
+    // Draw the QR code
+    for (let row = 0; row < numCells; row++) {
+      for (let col = 0; col < numCells; col++) {
+        if (qr.isDark(row, col)) {
+          ctx.fillStyle = this.fgColor;
+          ctx.fillRect(col * cellSize + qrX + margin, row * cellSize + qrY + margin, cellSize, cellSize);
+        }
+      }
+    }
+
+
+
+    if (this.overlayImageElement) {
+      // Calculate the position to center the overlay image within the QR code
+      const overlayImagSize = this.overlaySize; // Set the width of the overlay image
+      const overlayImageX = qrX + (qrSize - overlayImagSize) / 2;
+      console.log('overlayImage : '+overlayImageX)
+      const overlayImageY = qrY + (qrSize - overlayImagSize) / 2;
+       console.log('overlayImage : '+overlayImageY)
+
+      // Draw the overlay image onto the canvas
+      ctx.drawImage(this.overlayImageElement, overlayImageX, overlayImageY, overlayImagSize, overlayImagSize);
+
+    }
+
+
+
+    // Convert the canvas to data URL and set it as QR code data URL
+    this.qrCodeDataUrl = canvas.toDataURL();
+  };
+
+  img.onerror = (error) => {
+    console.error('Error loading image:', error);
+  };
+
+  img.src = this.selectedImageFramePath;
+},
+
+    drawFrame(context, width, height) {
+      switch (this.selectedFrameStyle) {
+        case 'simple':
+          this.drawSimpleFrame(context, width, height, 5, this.borderColor);
+          break;
+        case 'bold':
+          this.drawSimpleFrame(context, width, height, 10, this.borderColor);
+          break;
+        case 'dotted':
+          this.drawDottedFrame(context, width, height, 4.5, this.borderColor);
+          break;
+        case 'double':
+          this.drawDoubleFrame(context, width, height, 3, this.borderColor);
+          break;
+        default:
+          console.log(this.selectedFrameStyle);
+      }
+    },
+    drawSimpleFrame(context, width, height, frameWidth, color) {
+      context.fillStyle = color;
+      context.fillRect(0, 0, width, frameWidth); // Top
+      context.fillRect(0, 0, frameWidth, height); // Left
+      context.fillRect(width - frameWidth, 0, frameWidth, height); // Right
+      context.fillRect(0, height - frameWidth, width, frameWidth); // Bottom
+    },
+    drawDottedFrame(context, width, height, dotSize, color) {
+      context.fillStyle = color;
+      for (let x = 0; x < width; x += dotSize * 2) {
+        context.fillRect(x, 0, dotSize, dotSize); // Top
+        context.fillRect(x, height - dotSize, dotSize, dotSize);
+      }
+      for (let y = 0; y < height; y += dotSize * 2) {
+        context.fillRect(0, y, dotSize, dotSize); // Left
+        context.fillRect(width - dotSize, y, dotSize, dotSize); // Right
+      }
+    },
+    drawDoubleFrame(context, width, height, frameWidth, color) {
+      this.drawSimpleFrame(context, width, height, frameWidth, color);
+
+      const innerOffset = frameWidth * 4;
+      const innerWidth = width - innerOffset;
+      const innerHeight = height - innerOffset;
+
+      context.fillStyle = color;
+      context.fillRect(frameWidth * 2, frameWidth * 2, innerWidth, frameWidth);
+      context.fillRect(frameWidth * 2, height - frameWidth * 3, innerWidth, frameWidth);
+      context.fillRect(frameWidth * 2, frameWidth * 2, frameWidth, innerHeight);
+      context.fillRect(width - frameWidth * 3, frameWidth * 2, frameWidth, innerHeight);
+    },
+    downloadQRCode(formate) {
+      if (!this.qrCodeDataUrl) {
+        this.$q.notify({
+          color: 'negative',
+          message: 'Please generate a QR code first.',
+        });
+        return;
+      }
+
+      const link = document.createElement('a');
+      const extraWidth = 15;
+      const padding = 13;
+      const fontSize = 16;
+      const textHeight = fontSize;
+      const borderRadius = 20;
+
+      const qrImage = new Image();
+      qrImage.onload = () => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = qrImage.width +  extraWidth * 2;
+        canvas.height = qrImage.height + textHeight + padding * 2;
+          if(formate === 'pdf'){
+         context.fillStyle = "white"; // Set it to match your QR code styles
+         context.fillRect(0, 0, canvas.width, canvas.height);
+          }
+
+        function roundRect(ctx, x, y, width, height, radius) {
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.lineTo(x + width - radius, y);
+          ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+          ctx.lineTo(x + width, y + height - radius);
+          ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+          ctx.lineTo(x + radius, y + height);
+          ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+          ctx.lineTo(x, y + radius);
+          ctx.quadraticCurveTo(x, y, x + radius, y);
+          ctx.closePath();
+        }
+
+        roundRect(context, 0, 0, canvas.width, canvas.height, borderRadius);
+        context.clip();
+
+        context.drawImage(qrImage, extraWidth, 0);
+
+         if(this.selectedImageFramePath === ''){
+
+        context.fillStyle = this.borderColor;
+        context.fillRect(0, qrImage.height, canvas.width, textHeight + padding * 2);
+
+
+        context.fillStyle = this.textcolor;
+        context.font = `${fontSize}px ${this.selectedFont}`;
+        context.textAlign = 'center';
+        context.fillText(this.text, canvas.width / 2, qrImage.height + padding + fontSize);
+        }
+        let imgData
+        if(formate === 'png' || formate === 'jpg'){
+
+         imgData = canvas.toDataURL(`image/${formate}`)
+        } else  if(formate === 'pdf'){
+          const doc = new jsPDF()
+          imgData = canvas.toDataURL('image/jpeg')
+          doc.addImage(imgData,'JPEG',10,10, qrImage.width/2,qrImage.height/2)
+          doc.save('QRCode.pdf')
+          return
+        }
+
+        link.href = imgData
+        link.download = `QR.${formate}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      qrImage.src = this.qrCodeDataUrl;
+    },
+
+  }
+}
+</script>
+
+<style>
+.font-options-overlay {
+    position: absolute;
+    top: 0px;
+    left:0;
+    height: 100px;
+    overflow: scroll;
+    width: 200px;
+    background-color: whitesmoke;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1;
+  }
+ .relative-container {
+    position: relative;
+}
+  .font-options div {
+    padding: 2px 0;
+    cursor: pointer;
+  }
+  .font-options div:hover{
+    background-color: rgb(201, 195, 195);
+    border-radius: 5px;
+  }
+.colors{
+  width: 600px;
+}
+.downloadWidth{
+  width: 110px;
+  margin-left:20px;
+}
+.download{
+display:flex;
+ justify-content:space-between;
+  position: fixed;
+  top: 480px;
+}
+.first-div{
+  width:60%;
+}
+.second-div{
+  width:40%;
+  background-color: whitesmoke;
+}
+.q-field__control {
+  height: 45px;
+  width: 200px;
+  border: 1px solid rgb(114, 22, 175);
+  color: rgb(114, 22, 175);
+}
+.q-field__label {
+  left: 0;
+  top: 10px;
+  max-width: 100%;
+}
+.qr-image-container {
+  position:fixed;
+  top:100px
+}
+.download-btn{
+  position: fixed;
+  top: 420px;
+}
+.frames {
+
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.url-input .q-field__control{
+  width: 100%;
+}
+.q-field__append{
+  height: 43px !important;
+}
+.image-frames-scroll{
+  overflow-x: auto;
+}
+.class{
+  display: inline-flex;
+}
+ .image-frames-scroll::-webkit-scrollbar {
+  height: 3px;
+  background: rgb(0, 119, 255);
+ }
+
+.image-frames-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+}
+.addStyles{
+ height: 20px;
+}
+.color-picker-overlay1 {
+  position: absolute;
+  top:200px;
+  left: 140px;
+  z-index: 10;
+}
+.color-picker-overlay2 {
+  position: absolute;
+  top:200px;
+  left: 400px;
+  z-index: 10;
+
+}
+.color-picker-overlay3 {
+  position: absolute;
+  top: 440px;
+  left: 210px;
+  z-index: 10;
+}
+.color-picker-overlay4{
+  position: absolute;
+  top: 510px;
+  left:390px;
+  z-index:10 ;
+
+}
+@media screen and (max-width: 1024px){
+   .downloadWidth{
+  width: 90px;
+  margin-left:5px;
+}
+}
+@media screen and (max-width: 767px) {
+  .colors{
+    width: 95%;
+  }
+  .frames {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+  .url-input .q-field__control{
+  width: 100%;
+}
+  .qr-image-container {
+  position:relative;
+  top: 0px;
+}
+.download-btn{
+  position: relative;
+  top: 0px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+.download{
+  position: relative;
+  top:0px;
+  margin-top: 20px;
+   margin-bottom: 10px;
+}
+.downloadWidth{
+  width: 110px;
+  margin-left:10px
+}
+.first-div{
+  width:100%;
+}
+.second-div{
+  width:100%;
+  background-color: whitesmoke;
+}
+  .q-field__control {
+    width: 150px;
+    max-width: 100%;
+  }
+
+  .q-field__label {
+    max-width: 100%;
+  }
+  .class {
+    display: inline-flex;
+    /* Add margin from the left side */
+  }
+
+  .image-frames-scroll {
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-left: 20px;
+  }
+  .color-picker-overlay1 {
+  position: absolute;
+  top:210px;
+  left:0px;
+  z-index: 10;
+}
+.color-picker-overlay2 {
+  position: absolute;
+  top:210px;
+  left:200px;
+  z-index: 10;
+}
+.color-picker-overlay3 {
+  position: absolute;
+  top: 130px;
+  left:0px;
+  z-index: 10;
+}
+.color-picker-overlay4{
+  position: absolute;
+  top: 180px;
+  left:220px;
+  z-index:10 ;
+
+}
+.addStyles{
+  margin-top:30px;
+}
+
+
+  /* Add more styles for smaller screens as needed */
+}
+@media screen and (min-width:768px ) and (max-width:1024px){
+  .color-picker-overlay1 {
+  position: absolute;
+  top:100px;
+  left:100px;
+  z-index: 10;
+}
+.color-picker-overlay2 {
+  position: absolute;
+  top:100px;
+  left: 300px;
+  z-index: 10;
+}
+.color-picker-overlay3 {
+  position: absolute;
+  top: 260px;
+  left: 170px;
+  z-index: 10;
+}
+
+}
+@media screen and (width: 280px){
+
+  .q-field__control{
+    width: 250px;
+  }
+  .bgInput {
+    margin-top: 15px;
+  }
+  .download{
+    display: inline;
+  }
+
+}
+
+
+</style>
