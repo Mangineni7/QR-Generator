@@ -129,9 +129,29 @@
 
       <div v-if="qrCodeDataUrl && this.addImg">
         <h6>Add Image</h6>
-        <div>
+        <div class="flex justify-between">
+          <div>
       <input type="file" accept="image/*" @change="handleImageUpload" style="display: none;" ref="imageInput" />
-      <q-btn @click="openImageUploadDialog" > <img src="/image.png" style="width:100px;height:100px" ></q-btn>
+      <q-btn @click="openImageUploadDialog" > <img src="/image.png"   class="image"></q-btn>
+          </div>
+          <div>
+            <q-btn @click="addOverLayImages('whatsapp')" > <img src="/whatsapp (1).png"  class="image" ></q-btn>
+          </div>
+           <div>
+            <q-btn @click="addOverLayImages('facebook')" > <img src="/social (2).png"  class="image"></q-btn>
+          </div>
+           <div>
+            <q-btn @click="addOverLayImages('youtube')" > <img src="/social (1).png"  class="image"></q-btn>
+          </div>
+           <div>
+            <q-btn @click="addOverLayImages('linkedin')" > <img src="/social (3).png"  class="image"></q-btn>
+          </div>
+           <div>
+            <q-btn @click="addOverLayImages('insta')" > <img src="/social.png" class="image"></q-btn>
+          </div>
+           <div>
+            <q-btn @click="addOverLayImages('twitter')" > <img src="/twitter.png"  class="image"></q-btn>
+          </div>
         </div>
         <div class="flex flex-column q-mt-md">
         <span class="q-mr-lg">Logo Size</span>
@@ -192,6 +212,7 @@ export default {
     return {
       pdfUrl:'',
       files:'',
+      path:'',
       overlaySize:30,
       overlayDrawImage:false,
       showLoader:false,
@@ -278,6 +299,40 @@ export default {
       }
 
     },
+    addOverLayImages(Image) {
+    console.log('img', Image);
+    let imagePath;
+    switch (Image) {
+        case 'whatsapp':
+            imagePath = "/whatsapp (1).png";
+            break;
+        case 'facebook':
+            imagePath = "/social (2).png";
+            break;
+        case 'youtube':
+            imagePath = "/social (1).png";
+            break;
+        case 'linkedin':
+            imagePath = "/social (3).png";
+            break;
+        case 'insta':
+            imagePath = "/social.png";
+            break;
+        case 'twitter':
+            imagePath = "/twitter.png";
+            break;
+    }
+    console.log('overLay', imagePath);
+
+    // Create an Image object
+    const img = document.createElement('img');
+    img.src = imagePath;
+
+        // Once the image is loaded, call overlayImage with the HTMLImageElement
+        this.overlayImage(img);
+
+
+},
   openImageUploadDialog() {
       this.$refs.imageInput.click();
     },
@@ -699,7 +754,7 @@ drawImageFrame(context, width, height,pdfUrl) {
         } else  if(formate === 'pdf'){
           const doc = new jsPDF()
           imgData = canvas.toDataURL('image/jpeg')
-          doc.addImage(imgData,'JPEG',10,10, qrImage.width/2,qrImage.height/2)
+          doc.addImage(imgData,'JPEG',60 ,50, qrImage.width/2,qrImage.height/2)
           doc.save('QRCode.pdf')
           return
         }
@@ -833,15 +888,27 @@ display:flex;
   top: 510px;
   left:390px;
   z-index:10 ;
-
 }
+.image{
+    width: 50px;
+    height: 50px;
+  }
+
 @media screen and (max-width: 1024px){
    .downloadWidth{
   width: 90px;
   margin-left:5px;
 }
+.image{
+    width: 30px;
+    height: 30px;
+  }
 }
 @media screen and (max-width: 767px) {
+  .image{
+    width: 20px;
+    height: 20px;
+  }
   .colors{
     width: 95%;
   }
