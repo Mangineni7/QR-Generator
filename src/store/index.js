@@ -26,15 +26,36 @@ export default store(function (/* { ssrContext } */) {
     mutations:{
       toggleFrame(state) {
         state.addFrames = !state.addFrames
+        if(state.addFrames){
+          state.addImg = false
+          state.addColors =false
+          state.addSvg =false
+         }
       },
       toggleSvg(state){
         state.addSvg = !state.addSvg
+        if(state.addSvg){
+          state.addImg = false
+          state.addColors =false
+          state.addFrames =false
+         }
+
       },
       toggleImg(state){
         state.addImg = !state.addImg
+        if(state.addImg){
+          state.addFrames = false
+          state.addColors =false
+          state.addSvg =false
+         }
       },
       toggleAddColors(state){
          state.addColors = ! state.addColors
+         if(state.addColors){
+          state.addImg = false
+          state.addFrames =false
+          state.addSvg =false
+         }
       },
       toggleUrl(state){
         state.openUrl = true
@@ -43,6 +64,7 @@ export default store(function (/* { ssrContext } */) {
           state.addFrames = false
           state.addSvg = false
           state.addImg = false
+          state.addColors = false
         }
       },
       togglePdf(state){
@@ -52,6 +74,7 @@ export default store(function (/* { ssrContext } */) {
           state.addFrames = false
           state.addSvg = false
           state.addImg = false
+          state.addColors = false
         }
       },
       toggleQrcode(state, value){

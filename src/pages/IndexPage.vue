@@ -16,19 +16,6 @@
         <div class="flex flex-center q-mt-xl" v-if="openUrl">
         <q-btn @click="generateQRCode(this.pdfUrl)" label="Generate QR Code" color="primary" />
       </div>
-        <!-- <div  v-if="openPdf && !showLoader">
-       <input type="file" accept=".pdf" @change="handlePdfUpload" style="display: none;" ref="pdfInput" class="url-input"  />
-
-       <div class="flex flex-center q-mt-xl">
-      <q-input filled  v-model="selectedPdfName" label="Selecte PDF" class="pdf-input"   >
-      <template v-slot:append>
-         <div style="width:50px">
-        <q-btn flat @click="openPdfUploadDialog"   size="sm" ><img src="/attachment.gif" style="width:30px;height:30px"></q-btn>
-         </div>
-      </template>
-      </q-input>
-       </div>
-      </div> -->
       </q-form>
       </div>
       <q-form v-if="openPdf&&!showLoader">
@@ -47,13 +34,6 @@
         <div class="flex flex-center q-mt-xl">
        <q-btn @click="uploadPdfToFirebase(this.files)"  label="Generate Qr Code" color="primary"  />
        </div>
-       <!-- <div class="flex flex-center q-mt-sm" >
-         <q-input filled v-model="fgColor" label="Foreground Color" placeholder="#000000" required>
-          <template v-slot:append>
-            <q-btn icon="palette" @click="showColorPickerFg" class="color-picker" :style="{backgroundColor:fgColor}" />
-          </template>
-        </q-input>
-          </div> -->
 
       </div>
       </q-form>
@@ -139,11 +119,11 @@
       <div class="class" v-if="qrCodeDataUrl && this.addSvg">
         <q-btn @click="selectedImageFrame('frame1')"><img src="/scannerFrameGift3.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
         <q-btn @click="selectedImageFrame('frame2')"><img src="/scanmeMobile.webp" alt="scanner img" style="width:70px;height:70px"/></q-btn>
-         <q-btn @click="selectedImageFrame('frame3')"><img src="/scanMe2Triangle.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
-          <q-btn @click="selectedImageFrame('frame4')"><img src="/scan me  simple.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
-           <q-btn @click="selectedImageFrame('frame5')"><img src="/scanMeBag.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
-           <q-btn @click="selectedImageFrame('frame6')"><img src="/scanMe1.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
-           <q-btn @click="selectedImageFrame('frame7')"><img src="/scanMe shapes.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+        <q-btn @click="selectedImageFrame('frame3')"><img src="/scanMe2Triangle.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+        <q-btn @click="selectedImageFrame('frame4')"><img src="/scan me  simple.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+        <q-btn @click="selectedImageFrame('frame5')"><img src="/scanMeBag.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+        <q-btn @click="selectedImageFrame('frame6')"><img src="/scanMe1.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
+        <q-btn @click="selectedImageFrame('frame7')"><img src="/scanMe shapes.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
       </div>
       </div>
 
@@ -181,8 +161,8 @@
       </div>
        <div v-if="download" class=" q-mt-lg download">
            <q-btn @click="downloadQRCode('png')" label="Download Png" color="primary" class="downloadWidth"   />
-            <q-btn @click="downloadQRCode('jpg')" label="Download Jpg" color="primary" class="downloadWidth"  />
-             <q-btn @click="downloadQRCode('pdf')" label="Download pdf" color="primary" class="downloadWidth"    />
+           <q-btn @click="downloadQRCode('jpg')" label="Download Jpg" color="primary" class="downloadWidth"  />
+           <q-btn @click="downloadQRCode('pdf')" label="Download pdf" color="primary" class="downloadWidth"    />
         </div>
     </div>
 
@@ -931,13 +911,13 @@ display:flex;
 }
 .color-picker-overlay3 {
   position: absolute;
-  top: 130px;
+  top: 120px;
   left:0px;
   z-index: 10;
 }
 .color-picker-overlay4{
   position: absolute;
-  top: 180px;
+  top: 170px;
   left:220px;
   z-index:10 ;
 
@@ -952,20 +932,26 @@ display:flex;
 @media screen and (min-width:768px ) and (max-width:1024px){
   .color-picker-overlay1 {
   position: absolute;
-  top:100px;
+  top:210px;
   left:100px;
   z-index: 10;
 }
 .color-picker-overlay2 {
   position: absolute;
-  top:100px;
+  top:210px;
   left: 300px;
   z-index: 10;
 }
 .color-picker-overlay3 {
   position: absolute;
-  top: 260px;
-  left: 170px;
+  top: 450px;
+  left: 10px;
+  z-index: 10;
+}
+.color-picker-overlay4 {
+  position: absolute;
+  top: 500px;
+  left: 240px;
   z-index: 10;
 }
 
