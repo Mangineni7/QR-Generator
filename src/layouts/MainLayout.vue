@@ -279,7 +279,7 @@ export default defineComponent({
 .button:hover{
   background-color: rgb(43, 192, 185);
   background-color: rgba(248, 250, 250, 0.74);
-  height: 50px;
+
 
   color: black;
 }

@@ -6,7 +6,7 @@
        <img src="../statics/Animation - 1713955201690.gif"  />
        </div>
       <div  style="width:100%;" >
-      <q-form class="q-gutter-md  ">
+      <q-form class="q-gutter-md ">
         <div v-if="openUrl">
         <div>
         <q-input filled v-model="url" label="Enter URL for QR code" placeholder="http://www.example.com" required class="url-input" @keyup="checkUrl" />
@@ -37,7 +37,7 @@
 
       </div>
       </q-form>
-      <div class="flex justify-between colors q-mt-lg" style="width:100%"  v-if="qrCodeDataUrl&&this.addColors">
+      <div class="flex justify-between colors q-mt-lg" style="width:100%"  v-if="qrCodeDataUrl&&this.addColors  && !showLoader">
           <div>
          <q-input filled v-model="fgColor" label="Foreground Color" placeholder="#000000" required>
           <template v-slot:append>
@@ -46,7 +46,6 @@
         </q-input>
           </div>
           <div class="bgInput">
-
         <q-input filled v-model="bgColor" label="Background Color" required>
           <template v-slot:append>
             <q-btn icon="palette" @click="showColorPickerBg" class="color-picker" :style="{backgroundColor:bgColor}" />
@@ -54,14 +53,20 @@
         </q-input>
           </div>
         </div>
+        <div v-if="qrCodeDataUrl&&this.addColors  && !showLoader">
+        <div>
         <q-color @click="generateQRStyles" v-model="fgColor" v-if="showFgColorPicker" class="color-picker-overlay1" />
+        </div>
+        <div>
         <q-color @click="generateQRStyles"  v-model="bgColor" v-if="showBgColorPicker" class="color-picker-overlay2" />
+        </div>
+        </div>
 
 
 
-      <h6 v-if="qrCodeDataUrl && this.addFrame">Add frames</h6>
+      <h6 v-if="qrCodeDataUrl && this.addFrame && !showLoader">Add frames</h6>
       <div class="frames">
-      <div style=" display: inline-flex; " v-if="qrCodeDataUrl && this.addFrame">
+      <div style=" display: inline-flex; " v-if="qrCodeDataUrl && this.addFrame && !showLoader">
         <q-btn @click="selectedFrame('simple')" style="margin-left:40px"> <div style="display: flex; flex-direction: column; ">
           <div style="width:50px;height:50px;border:2px solid black;"></div>
           <div style="width:60px;height:15px;background-color:black;margin-left:-5px;color:white;border-radius:5px;border-top-right-radius:0px;border-top-left-radius:0px"><span style="font-size:8px;">scan me</span></div>
@@ -80,7 +85,7 @@
           </div> </q-btn>
       </div>
       </div>
-      <div v-if="qrCodeDataUrl && this.addFrame" class="q-mt-xl flex justify-between ">
+      <div v-if="qrCodeDataUrl && this.addFrame  && !showLoader" class="q-mt-xl flex justify-between ">
           <q-input filled v-model="borderColor" @input="generateQRCode" label="Frame Color" class="addStyles" required >
             <template v-slot:append>
               <q-btn icon="palette" @click="showColorPickerFrame"  :style="{backgroundColor:borderColor}" />
@@ -89,7 +94,7 @@
            <q-btn @click="generateQRCode" label="Add Frame Color" color="positive" class="addStyles" />
             <q-color @click="generateQRCode(this.padfUrl)" v-model="borderColor" v-if="showFrameColorPicker" class="color-picker-overlay3" />
         </div>
-         <div class=" q-mt-md flex justify-between " style="max-width:100%" v-if="qrCodeDataUrl && this.addFrame">
+         <div class=" q-mt-md flex justify-between " style="max-width:100%" v-if="qrCodeDataUrl && this.addFrame  && !showLoader">
           <q-input filled v-model="text" label="Text" class="text" >
             <template v-slot:append>
                 <q-btn icon="font_download" @click="toggleFontOptions" />
@@ -114,9 +119,9 @@
          </div>
       </div>
 
-      <h6 v-if="qrCodeDataUrl && this.addSvg">Add Svg</h6>
+      <h6 v-if="qrCodeDataUrl && this.addSvg  && !showLoader">Add Svg</h6>
       <div class="image-frames-scroll">
-      <div class="class" v-if="qrCodeDataUrl && this.addSvg">
+      <div class="class" v-if="qrCodeDataUrl && this.addSvg  && !showLoader">
         <q-btn @click="selectedImageFrame('frame1')"><img src="/scannerFrameGift3.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
         <q-btn @click="selectedImageFrame('frame2')"><img src="/scanmeMobile.webp" alt="scanner img" style="width:70px;height:70px"/></q-btn>
         <q-btn @click="selectedImageFrame('frame3')"><img src="/scanMe2Triangle.jpg" alt="scanner img" style="width:70px;height:70px"/></q-btn>
@@ -127,7 +132,7 @@
       </div>
       </div>
 
-      <div v-if="qrCodeDataUrl && this.addImg">
+      <div v-if="qrCodeDataUrl && this.addImg  && !showLoader">
         <h6>Add Image</h6>
         <div class="flex justify-between">
           <div>
@@ -166,7 +171,7 @@
         <div  class="q-mt-xl flex flex-center">
           <!-- Adjusted image container for QR code and frame -->
           <div class="qr-image-container ">
-            <img src="/transparentQr.png" alt="QR Code" v-if="!qrCodeDataUrl" style="width:200px;height:200px" />
+            <img src="/transparent@2.png" alt="QR Code" v-if="!qrCodeDataUrl" style="width:300px;height:200px" />
             <img :src="qrCodeDataUrl"  />
             <div v-if="qrCodeDataUrl && selectedImageFramePath === ''"  :style="{ width: scanMeWidth + 'px', height: scanMeHeight + 'px',
             backgroundColor: frameColor ? frameColor : 'black',color: this.textcolor,
@@ -754,7 +759,7 @@ drawImageFrame(context, width, height,pdfUrl) {
         } else  if(formate === 'pdf'){
           const doc = new jsPDF()
           imgData = canvas.toDataURL('image/jpeg')
-          doc.addImage(imgData,'JPEG',60 ,50, qrImage.width/2,qrImage.height/2)
+          doc.addImage(imgData,'JPEG',50 ,50, qrImage.width/2,qrImage.height/2)
           doc.save('QRCode.pdf')
           return
         }
@@ -773,6 +778,9 @@ drawImageFrame(context, width, height,pdfUrl) {
 </script>
 
 <style>
+body::-webkit-scrollbar {
+    display: none;
+}
 .font-options-overlay {
     position: absolute;
     top: 0px;
@@ -814,6 +822,7 @@ display:flex;
   width:60%;
 }
 .second-div{
+
   width:40%;
   background-color: whitesmoke;
 }
@@ -836,11 +845,11 @@ display:flex;
   position: fixed;
   top: 420px;
 }
-.frames {
+/*.frames {
 
   overflow-x: auto;
   white-space: nowrap;
-}
+}*/
 .url-input .q-field__control{
   width: 100%;
 }
@@ -866,13 +875,13 @@ display:flex;
 }
 .color-picker-overlay1 {
   position: absolute;
-  top:200px;
+  top:210px;
   left: 140px;
   z-index: 10;
 }
 .color-picker-overlay2 {
   position: absolute;
-  top:200px;
+  top:210px;
   left: 400px;
   z-index: 10;
 
@@ -880,12 +889,12 @@ display:flex;
 .color-picker-overlay3 {
   position: absolute;
   top: 440px;
-  left: 210px;
+  left: 0px;
   z-index: 10;
 }
 .color-picker-overlay4{
   position: absolute;
-  top: 510px;
+  top: 480px;
   left:390px;
   z-index:10 ;
 }
@@ -903,11 +912,15 @@ display:flex;
     width: 30px;
     height: 30px;
   }
+  .frames {
+  overflow-x: auto;
+  white-space: nowrap;
+}
 }
 @media screen and (max-width: 767px) {
   .image{
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
   }
   .colors{
     width: 95%;
@@ -1020,6 +1033,10 @@ display:flex;
   top: 500px;
   left: 240px;
   z-index: 10;
+}
+.frames {
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 }

@@ -1,5 +1,5 @@
 # Use an official Node runtime as a parent image
-FROM node:16-alpine
+FROM node:latest
 
 # Set the working directory in the container to /app
 WORKDIR /app
@@ -20,7 +20,7 @@ COPY . .
 RUN quasar build
 
 # Expose port 80 to allow external access to the application
-EXPOSE 80
+EXPOSE 2024
 
 # Define the command to run the application when the container starts
-CMD ["quasar", "serve", "-p", "80", "--history"]
+CMD ["quasar", "serve", "-p", "2024", "--history"]
