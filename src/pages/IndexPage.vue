@@ -452,6 +452,7 @@ export default {
         const pdfUrl = await getDownloadURL(storageRef);
         const shortUrl = await this.shortenUrl(pdfUrl);
         this.pdfUrl = shortUrl
+        console.log("shorten url :" , shortUrl);
         this.generateQRCode(shortUrl);
       } catch (error) {
         console.error('Error uploading PDF to Firebase:', error);
@@ -459,7 +460,9 @@ export default {
     },
     async shortenUrl(url) {
   try {
-    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+    const response = await fetch(`/api/shorten-url?url=${encodeURIComponent(url)}`, {
+  mode: 'no-cors'
+});
 
     if (!response.ok) {
       throw new Error('Failed to shorten URL');
@@ -759,7 +762,7 @@ drawImageFrame(context, width, height,pdfUrl) {
         } else  if(formate === 'pdf'){
           const doc = new jsPDF()
           imgData = canvas.toDataURL('image/jpeg')
-          doc.addImage(imgData,'JPEG',50 ,50, qrImage.width/2,qrImage.height/2)
+          doc.addImage(imgData,'JPEG',60 ,85, qrImage.width/2,qrImage.height/2)
           doc.save('QRCode.pdf')
           return
         }
