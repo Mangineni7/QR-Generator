@@ -461,6 +461,7 @@ export default {
     async shortenUrl(url) {
   try {
     const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,{
+
       mode: 'no-cors'
     });
 
