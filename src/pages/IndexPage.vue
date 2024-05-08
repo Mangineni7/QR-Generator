@@ -460,9 +460,9 @@ export default {
     },
     async shortenUrl(url) {
   try {
-    const response = await fetch(`/api/shorten-url?url=${encodeURIComponent(url)}`, {
-  mode: 'no-cors'
-});
+    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,{
+      mode: 'no-cors'
+    });
 
     if (!response.ok) {
       throw new Error('Failed to shorten URL');
