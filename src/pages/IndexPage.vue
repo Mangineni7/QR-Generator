@@ -452,18 +452,14 @@ export default {
         const pdfUrl = await getDownloadURL(storageRef);
         const shortUrl = await this.shortenUrl(pdfUrl);
         this.pdfUrl = shortUrl
-        console.log("shorten url :" , shortUrl);
         this.generateQRCode(shortUrl);
       } catch (error) {
         console.error('Error uploading PDF to Firebase:', error);
       }
     },
-    async shortenUrl(url, retryCount = 3) {
+    async shortenUrl(url) {
   try {
-    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,{
-
-      mode: 'no-cors'
-    });
+    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
 
     if (!response.ok) {
       throw new Error('Failed to shorten URL');
@@ -472,14 +468,7 @@ export default {
     return response.text();
   } catch (error) {
     console.error('Error shortening URL:', error);
-
-    if (retryCount > 0) {
-      console.log(`Retrying (${retryCount} attempts left)...`);
-      return this.shortenUrl(url, retryCount - 1);
-    } else {
-      console.error('No more retry attempts left.');
-      return url; // Return original URL if all retry attempts fail
-    }
+    return url; // Return original URL if there's an error
   }
 },
     generateQRCode(pdfUrl = this.pdfUrl) {
