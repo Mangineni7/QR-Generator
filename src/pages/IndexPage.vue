@@ -458,7 +458,7 @@ export default {
         console.error('Error uploading PDF to Firebase:', error);
       }
     },
-    async shortenUrl(url) {
+    async shortenUrl(url, retryCount = 3) {
   try {
     const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,{
 
@@ -472,7 +472,14 @@ export default {
     return response.text();
   } catch (error) {
     console.error('Error shortening URL:', error);
-    return url; // Return original URL if there's an error
+
+    if (retryCount > 0) {
+      console.log(`Retrying (${retryCount} attempts left)...`);
+      return this.shortenUrl(url, retryCount - 1);
+    } else {
+      console.error('No more retry attempts left.');
+      return url; // Return original URL if all retry attempts fail
+    }
   }
 },
     generateQRCode(pdfUrl = this.pdfUrl) {
