@@ -109,7 +109,7 @@
          </q-input>
          <q-color @click="generateQRCode(this.pdfUrl)" v-model="textcolor" v-if="showtextColorPicker" class="color-picker-overlay4" />
          </div>
-         <div class="relative-container">
+         <div class="relative-container" v-if="qrCodeDataUrl && this.addFrame  && !showLoader">
          <div v-if="fontSelector" class="font-options-overlay">
           <div class="font-options">
           <div v-for="font in fontOptions" :key="font" @click="applyFontStyle(font)" style="cursor:pointer">
@@ -181,10 +181,10 @@
           </div>
         </div>
       </div>
-      <div class="flex flex-center " v-if="qrCodeDataUrl" >
+      <!-- <div class="flex flex-center " v-if="qrCodeDataUrl" >
         <q-btn @click="downloadQR" label="Download QR Code" color="primary" class="download-btn"   />
-      </div>
-       <div v-if="download" class=" q-mt-lg download">
+      </div> -->
+       <div v-if="qrCodeDataUrl"  class=" q-mt-lg download">
            <q-btn @click="downloadQRCode('png')" label="Download Png" color="primary" class="downloadWidth"   />
            <q-btn @click="downloadQRCode('jpg')" label="Download Jpg" color="primary" class="downloadWidth"  />
            <q-btn @click="downloadQRCode('pdf')" label="Download pdf" color="primary" class="downloadWidth"    />
@@ -783,7 +783,7 @@ body::-webkit-scrollbar {
 }
 .font-options-overlay {
     position: absolute;
-    top: 0px;
+    top:-145px;
     left:0;
     height: 100px;
     overflow: scroll;
@@ -816,7 +816,7 @@ body::-webkit-scrollbar {
 display:flex;
  justify-content:space-between;
   position: fixed;
-  top: 480px;
+  top: 350px;
 }
 .first-div{
   width:60%;
@@ -906,7 +906,7 @@ display:flex;
 @media screen and (max-width: 1024px){
    .downloadWidth{
   width: 90px;
-  margin-left:5px;
+  margin-left:22px;
 }
 .image{
     width: 30px;
@@ -1010,6 +1010,10 @@ display:flex;
   /* Add more styles for smaller screens as needed */
 }
 @media screen and (min-width:768px ) and (max-width:1024px){
+  .downloadWidth{
+  width: 90px;
+  margin-left:10px
+}
   .color-picker-overlay1 {
   position: absolute;
   top:210px;
