@@ -484,8 +484,7 @@ closeColorPicker(event) {
   if (!picker1 || !picker2 || !fontPicker) {
     return;
   }
-
-  if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontPicker.contains(event.target)) {
+if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontPicker.contains(event.target)) {
     console.log("click event ");
     this.showFrameColorPicker = false;
     this.showtextColorPicker = false;
@@ -959,7 +958,7 @@ display:flex;
 .color-picker-overlay3 {
   position: absolute;
   top: 80px;
-  left: 0px;
+  left: 20px;
   z-index: 10;
 }
 .color-picker-overlay4{
