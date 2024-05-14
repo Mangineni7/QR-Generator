@@ -158,9 +158,9 @@
            <div>
             <q-btn @click="addOverLayImages('insta')" > <img src="/social.png" class="image"></q-btn>
           </div>
-           <div>
+           <!-- <div>
             <q-btn @click="addOverLayImages('twitter')" > <img src="/twitter.png"  class="image"></q-btn>
-          </div>
+          </div> -->
         </div>
         <div class="flex flex-column q-mt-md">
         <span class="q-mr-lg">Logo Size</span>
@@ -945,7 +945,7 @@ display:flex;
 .color-picker-overlay1 {
   position: absolute;
   top:210px;
-  left: 140px;
+  left: 30px;
   z-index: 10;
 }
 .color-picker-overlay2 {
@@ -968,8 +968,8 @@ display:flex;
   z-index:10 ;
 }
 .image{
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
   }
 
 @media screen and (max-width: 1024px){
