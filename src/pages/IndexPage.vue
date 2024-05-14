@@ -477,12 +477,19 @@ showTextColor(event) {
   }
 },
 closeColorPicker(event) {
-  if (!this.$refs.picker1.contains(event.target) && !this.$refs.picker2.contains(event.target)
-     &&  this.$refs.fontPicker && !this.$refs.fontPicker.contains(event.target)) {
+  const fontPicker = this.$refs.fontPicker;
+  const picker1 = this.$refs.picker1;
+  const picker2 = this.$refs.picker2;
+
+  if (!picker1 || !picker2 || !fontPicker) {
+    return;
+  }
+
+  if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontPicker.contains(event.target)) {
     console.log("click event ");
     this.showFrameColorPicker = false;
     this.showtextColorPicker = false;
-    this.fontSelector = false
+    this.fontSelector = false;
     document.removeEventListener('click', this.closeColorPicker);
   }
 },
