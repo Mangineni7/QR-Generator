@@ -11,13 +11,13 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "build": "quasar build",
-    "deploy":"vercel"
-
+    "deploy": "vercel"
   },
   "dependencies": {
     "@fortawesome/vue-fontawesome": "^3.0.6",
     "@mikk3lro/mc-fontpicker": "^0.1.3",
     "@quasar/extras": "^1.16.4",
+    "@vueuse/core": "^10.9.0",
     "axios": "^1.2.1",
     "core-js": "^3.31.1",
     "firebase": "^10.11.0",

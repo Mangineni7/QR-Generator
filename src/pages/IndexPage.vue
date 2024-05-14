@@ -54,10 +54,10 @@
           </div>
         </div>
         <div v-if="qrCodeDataUrl&&this.addColors  && !showLoader">
-        <div>
+        <div ref="colorPicker1" >
         <q-color @click="generateQRStyles" v-model="fgColor" v-if="showFgColorPicker" class="color-picker-overlay1" />
         </div>
-        <div>
+        <div  ref="colorPicker2" >
         <q-color @click="generateQRStyles"  v-model="bgColor" v-if="showBgColorPicker" class="color-picker-overlay2" />
         </div>
         </div>
@@ -88,11 +88,13 @@
       <div v-if="qrCodeDataUrl && this.addFrame  && !showLoader" class="q-mt-xl flex justify-between ">
           <q-input filled v-model="borderColor" @input="generateQRCode" label="Frame Color" class="addStyles" required >
             <template v-slot:append>
-              <q-btn icon="palette" @click="showColorPickerFrame"  :style="{backgroundColor:borderColor}" />
+              <q-btn icon="palette" @click="showColorPickerFrame" class="color-picker"  :style="{backgroundColor:borderColor}" />
             </template>
           </q-input>
            <q-btn @click="generateQRCode" label="Add Frame Color" color="positive" class="addStyles" />
-            <q-color @click="generateQRCode(this.padfUrl)" v-model="borderColor" v-if="showFrameColorPicker" class="color-picker-overlay3" />
+            <div ref="picker1">
+            <q-color @click="generateQRCode(this.padfUrl)" v-model="borderColor" v-if="showFrameColorPicker"  class="color-picker-overlay3" />
+            </div>
         </div>
          <div class=" q-mt-md flex justify-between " style="max-width:100%" v-if="qrCodeDataUrl && this.addFrame  && !showLoader">
           <q-input filled v-model="text" label="Text" class="text" >
@@ -104,13 +106,15 @@
 
          <q-input filled v-model="textcolor" label="Text-color" class="text bgInput" >
           <template v-slot:append>
-            <q-btn icon="palette" @click="showTextColor" :style="{backgroundColor:textcolor}"></q-btn>
+            <q-btn icon="palette" @click="showTextColor" class="color-picker" :style="{backgroundColor:textcolor}"></q-btn>
           </template>
          </q-input>
-         <q-color @click="generateQRCode(this.pdfUrl)" v-model="textcolor" v-if="showtextColorPicker" class="color-picker-overlay4" />
+         <div ref="picker2">
+         <q-color @click="generateQRCode(this.pdfUrl)" v-model="textcolor" v-if="showtextColorPicker"  class="color-picker-overlay4" />
          </div>
-         <div class="relative-container" v-if="qrCodeDataUrl && this.addFrame  && !showLoader">
-         <div v-if="fontSelector" class="font-options-overlay">
+         </div>
+         <div class="relative-container" v-if="qrCodeDataUrl && this.addFrame  && !showLoader"  ref="fontPicker">
+         <div v-if="fontSelector" class="font-options-overlay" >
           <div class="font-options">
           <div v-for="font in fontOptions" :key="font" @click="applyFontStyle(font)" style="cursor:pointer">
               {{ font }}
@@ -253,6 +257,8 @@ export default {
 ],
     };
   },
+
+
   computed: {
     addFrame() {
       return this.$store.state.addFrames;
@@ -274,7 +280,6 @@ export default {
     }
 
   },
-
   methods: {
 
     stylesShow(){
@@ -287,8 +292,14 @@ export default {
        }
 
     },
-    toggleFontOptions() {
+    toggleFontOptions(event) {
+      event.stopPropagation()
     this.fontSelector = !this.fontSelector;
+    if(this.fontSelector){
+      this.showFrameColorPicker = false
+      this.showtextColorPicker = false
+      document.addEventListener('click' ,this.closeColorPicker)
+    }
   },
     //
     applyFontStyle(font) {
@@ -409,20 +420,72 @@ export default {
       }
       this.generateQRCode(this.pdfUrl)
     },
-    showColorPickerFg() {
+   showColorPickerFg(event) {
+       event.stopPropagation();
+
+      // Toggle the color picker visibility
       this.showFgColorPicker = !this.showFgColorPicker;
+
+      // If color picker is opened, add event listener to close it on outside click
+      if (this.showFgColorPicker) {
+        this.showBgColorPicker = false
+        document.addEventListener('click', this.closeColorPickerOnClickOutside);
+      } else {
+        document.removeEventListener('click', this.closeColorPickerOnClickOutside);
+      }
     },
-    showColorPickerBg() {
+    closeColorPickerOnClickOutside(event) {
+      // Check if the click occurred outside the color picker or its button
+     if (!this.$refs.colorPicker1.contains(event.target) && !this.$refs.colorPicker2.contains(event.target)) {
+        this.showFgColorPicker = false;
+        this.showBgColorPicker = false;
+    document.removeEventListener('click', this.closeColorPickerOnClickOutside);
+  }
+    },
+    showColorPickerBg(event) {
+       event.stopPropagation();
       this.showBgColorPicker = !this.showBgColorPicker;
+       if (this.showBgColorPicker) {
+        this.showFgColorPicker = false
+        document.addEventListener('click', this.closeColorPickerOnClickOutside);
+      } else {
+        document.removeEventListener('click', this.closeColorPickerOnClickOutside);
+      }
     },
-    showColorPickerFrame() {
-      this.showFrameColorPicker = !this.showFrameColorPicker;
-    },
-   showTextColor(){
+   showColorPickerFrame(event) {
+  event.stopPropagation();
+  this.showFrameColorPicker = !this.showFrameColorPicker;
 
-    this.showtextColorPicker = ! this.showtextColorPicker;
+  if (this.showFrameColorPicker) {
+    this.showtextColorPicker = false;
+     this.fontSelector = false
+    document.addEventListener('click', this.closeColorPicker);
+  } else {
+    document.removeEventListener('click', this.closeColorPicker);
+  }
+},
+showTextColor(event) {
+  event.stopPropagation();
+  this.showtextColorPicker = !this.showtextColorPicker;
 
-   },
+  if (this.showtextColorPicker) {
+    this.showFrameColorPicker = false;
+    this.fontSelector = false // Close frame color picker
+    document.addEventListener('click', this.closeColorPicker);
+  } else {
+    document.removeEventListener('click', this.closeColorPicker);
+  }
+},
+closeColorPicker(event) {
+  if (!this.$refs.picker1.contains(event.target) && !this.$refs.picker2.contains(event.target)
+     &&  this.$refs.fontPicker && !this.$refs.fontPicker.contains(event.target)) {
+    console.log("click event ");
+    this.showFrameColorPicker = false;
+    this.showtextColorPicker = false;
+    this.fontSelector = false
+    document.removeEventListener('click', this.closeColorPicker);
+  }
+},
    openPdfUploadDialog() {
       this.$refs.pdfInput.click();
     },
@@ -783,9 +846,9 @@ body::-webkit-scrollbar {
 }
 .font-options-overlay {
     position: absolute;
-    top:-145px;
+    top:-244px;
     left:0;
-    height: 100px;
+    height: 200px;
     overflow: scroll;
     width: 200px;
     background-color: whitesmoke;
@@ -888,14 +951,14 @@ display:flex;
 }
 .color-picker-overlay3 {
   position: absolute;
-  top: 440px;
+  top: 80px;
   left: 0px;
   z-index: 10;
 }
 .color-picker-overlay4{
   position: absolute;
-  top: 480px;
-  left:390px;
+  top: 120px;
+  left:320px;
   z-index:10 ;
 }
 .image{
@@ -916,6 +979,19 @@ display:flex;
   overflow-x: auto;
   white-space: nowrap;
 }
+.color-picker-overlay3 {
+  position: absolute;
+  top:0px;
+  left: 0px;
+  z-index: 10;
+}
+.color-picker-overlay4{
+  position: absolute;
+  top: 0px;
+  left:320px;
+  z-index:10 ;
+}
+
 }
 @media screen and (max-width: 767px) {
   .image{
@@ -991,20 +1067,33 @@ display:flex;
 }
 .color-picker-overlay3 {
   position: absolute;
-  top: 120px;
-  left:0px;
+  top: 110px;
+  left:10px;
   z-index: 10;
 }
 .color-picker-overlay4{
   position: absolute;
-  top: 170px;
-  left:220px;
+  top: 150px;
+  left:178px;
   z-index:10 ;
 
 }
 .addStyles{
   margin-top:30px;
 }
+.font-options-overlay {
+    position: absolute;
+    top:-244px;
+    left:0;
+    height: 200px;
+    overflow: scroll;
+    width: 150px;
+    background-color: whitesmoke;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1;
+  }
 
 
   /* Add more styles for smaller screens as needed */
@@ -1017,24 +1106,24 @@ display:flex;
   .color-picker-overlay1 {
   position: absolute;
   top:210px;
-  left:100px;
+  left:30px;
   z-index: 10;
 }
 .color-picker-overlay2 {
   position: absolute;
   top:210px;
-  left: 300px;
+  left: 250px;
   z-index: 10;
 }
 .color-picker-overlay3 {
   position: absolute;
-  top: 450px;
+  top: 80px;
   left: 10px;
   z-index: 10;
 }
 .color-picker-overlay4 {
   position: absolute;
-  top: 500px;
+  top: 120px;
   left: 240px;
   z-index: 10;
 }
