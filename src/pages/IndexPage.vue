@@ -7,13 +7,13 @@
        </div>
       <div  style="width:100%;" >
       <q-form class="q-gutter-md ">
-        <div v-if="openUrl">
+        <div v-if="openUrl && !showLoader">
         <div>
         <q-input filled v-model="url" label="Enter URL for QR code" placeholder="http://www.example.com" required class="url-input" @keyup="checkUrl" />
          <span style="color:red;" v-if="error">url must starts with http or https and enter valid url</span>
         </div>
         </div>
-        <div class="flex flex-center q-mt-xl" v-if="openUrl">
+        <div class="flex flex-center q-mt-xl" v-if="openUrl&&!showLoader">
         <q-btn @click="generateQRCode(this.pdfUrl)" label="Generate QR Code" color="primary" />
       </div>
       </q-form>
@@ -53,7 +53,7 @@
         </q-input>
           </div>
         </div>
-        <div v-if="qrCodeDataUrl&&this.addColors  && !showLoader">
+        <div v-if="qrCodeDataUrl && this.addColors  && !showLoader">
         <div ref="colorPicker1" >
         <q-color @click="generateQRStyles" v-model="fgColor" v-if="showFgColorPicker" class="color-picker-overlay1" />
         </div>
@@ -122,6 +122,8 @@
           </div>
          </div>
       </div>
+     <!-- <frame-selector v-if="qrCodeDataUrl&& this.addFrame&& !showLoader" @frame-selected="selectedFrame"
+     @font-selector="applyFontStyle" @callGenerate-Qr="generatingForColors" @text-change="textchange"></frame-selector> -->
 
       <h6 v-if="qrCodeDataUrl && this.addSvg  && !showLoader">Add Svg</h6>
       <div class="image-frames-scroll">
@@ -139,6 +141,9 @@
       <div v-if="qrCodeDataUrl && this.addImg  && !showLoader">
         <h6>Add Image</h6>
         <div class="flex justify-between">
+          <div>
+             <q-btn @click="addOverLayImages('cancel')" > <img src="/cancel.png"   class="image"></q-btn>
+          </div>
           <div>
       <input type="file" accept="image/*" @change="handleImageUpload" style="display: none;" ref="imageInput" />
       <q-btn @click="openImageUploadDialog" > <img src="/image.png"   class="image"></q-btn>
@@ -203,6 +208,7 @@ import qrcode from 'qrcode-generator'
 import jsPDF from 'jspdf'
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+//import FrameSelector from 'src/components/FrameSelector.vue';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAfWC9HXTkDaAZS4K_NjDd57gti-p8sJZw",
@@ -217,8 +223,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 export default {
+  components:{
+   // FrameSelector
+  },
   data() {
     return {
+      quitNotify:false,
       pdfUrl:'',
       files:'',
       path:'',
@@ -233,6 +243,7 @@ export default {
       showtextColorPicker:false,
       textcolor:'#FFFFFF',
       error:false,
+      selectedUrl:'',
       url: '',
       fgColor: '#000000',
       bgColor: '#FFFFFF',
@@ -280,7 +291,62 @@ export default {
     }
 
   },
+  watch:{
+    addColors(){
+
+        this.resetStyles()
+    },
+    addFrame(){
+
+        this.resetStyles()
+    },
+    addSvg(){
+
+        this.resetStyles()
+    },
+    addImg(){
+
+        this.resetStyles()
+    },
+    openUrl(newVal){
+
+      if(!newVal){
+
+      if(this.generatingQr){
+       this.qrCodeDataUrl = ''
+       this.url='empty'
+
+      }
+      }
+
+    },
+    openPdf(newVal){
+
+      if(!newVal){
+
+        if(this.generatingQr){
+       this.qrCodeDataUrl = ''
+       this.selectedPdfName =''
+       this.pdfUrl='empty'
+        }
+
+      }
+
+    }
+  },
   methods: {
+    resetStyles(){
+      this.text = 'Scan me'
+      this.fgColor ='#000000'
+      this.bgColor ='#ffffff'
+      this.frameColor ='#000000'
+      this.borderColor = '#000000'
+      this.textcolor = '#ffffff'
+      this.selectedImageFramePath =''
+      this.selectedFrameStyle =''
+      this.overlayImageElement = ''
+      this.generateQRCode(this.pdfUrl)
+   },
 
     stylesShow(){
       if(!this.qrCodeDataUrl){
@@ -301,7 +367,14 @@ export default {
       document.addEventListener('click' ,this.closeColorPicker)
     }
   },
-    //
+    generatingForColors({borderColor,textColor,text}){
+    console.log("calling function");
+    this.borderColor = borderColor
+    this.textcolor   = textColor
+    this.text = text
+    this.generateQRCode(this.pdfUrl)
+
+  },
     applyFontStyle(font) {
       this.selectedFont = font
     },
@@ -319,6 +392,9 @@ export default {
     console.log('img', Image);
     let imagePath;
     switch (Image) {
+        case 'cancel':
+          imagePath = ''
+          break
         case 'whatsapp':
             imagePath = "/whatsapp (1).png";
             break;
@@ -541,6 +617,7 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
   }
 },
     generateQRCode(pdfUrl = this.pdfUrl) {
+
       this.generatingQr = true
       console.log('padfUrl: ' , pdfUrl);
       console.log('Url: ' , this.url);
@@ -554,6 +631,13 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
   }
 
   if (!this.error) {
+    if(this.url === 'empty'){
+      this.url = ''
+       this.generatingQr = false
+    }else if (this.pdfUrl === 'empty' ){
+      this.pdfUrl = ''
+      this.generatingQr = false
+    }
     let dataToAdd = '';
     if ((this.url.trim() && this.openUrl) || (this.openPdf && !pdfUrl) ) {
       dataToAdd = this.url;
@@ -566,6 +650,7 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
     this.frameColor = this.borderColor;
     console.log('screating qr')
      this.showLoader = false
+  if(this.url.trim() || this.pdfUrl){
     const qr = qrcode(0, 'H');
     qr.addData(dataToAdd);
     qr.make();
@@ -621,7 +706,10 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
     this.qrCodeDataUrl = canvas.toDataURL();
     this.scanMeWidth = `${size + 30}`;
     this.$store.commit('toggleQrcode', this.qrCodeDataUrl);
+
   }
+  }
+
 },
 drawImageFrame(context, width, height,pdfUrl) {
   this.overlayDrawImage = true
@@ -713,6 +801,7 @@ drawImageFrame(context, width, height,pdfUrl) {
   };
 
   img.src = this.selectedImageFramePath;
+
 },
 
     drawFrame(context, width, height) {
@@ -732,6 +821,7 @@ drawImageFrame(context, width, height,pdfUrl) {
         default:
           console.log(this.selectedFrameStyle);
       }
+
     },
     drawSimpleFrame(context, width, height, frameWidth, color) {
       context.fillStyle = color;
