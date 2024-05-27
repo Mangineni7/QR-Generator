@@ -372,7 +372,7 @@ export default {
     }
   },
     generatingForColors({borderColor,textColor,text}){
-    console.log("calling function");
+   // console.log("calling function");
     this.borderColor = borderColor
     this.textcolor   = textColor
     this.text = text
@@ -393,7 +393,7 @@ export default {
 
     },
     addOverLayImages(Image) {
-    console.log('img', Image);
+   // console.log('img', Image);
     let imagePath;
     switch (Image) {
         case 'cancel':
@@ -418,7 +418,7 @@ export default {
             imagePath = "/twitter.png";
             break;
     }
-    console.log('overLay', imagePath);
+   // console.log('overLay', imagePath);
 
     // Create an Image object
     const img = document.createElement('img');
@@ -452,7 +452,7 @@ export default {
     this.overlayImageElement = overlayImage
 
     this.generateQRCode();
-    console.log(this.addFrame)
+   // console.log(this.addFrame)
 
 },
   checkUrl() {
@@ -565,7 +565,7 @@ closeColorPicker(event) {
     return;
   }
 if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontPicker.contains(event.target)) {
-    console.log("click event ");
+    //console.log("click event ");
     this.showFrameColorPicker = false;
     this.showtextColorPicker = false;
     this.fontSelector = false;
@@ -579,6 +579,13 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
    handlePdfUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
+      if(file && file.type === 'application/pdf'){
+        this.selectedPdfName = file.name
+        this.files = file
+      } else {
+        this.selectedPdfName = ''
+        alert('Please select pdf file')
+      }
 
       this.selectedPdfName = file.name
       // Upload the selected PDF file to Firebase Storage
@@ -595,7 +602,7 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
       }
       try {
         this.showLoader = true
-        console.log('show loader :' + this.showLoader);
+       // console.log('show loader :' + this.showLoader);
         const storageRef = ref(storage, file.name);
         await uploadBytes(storageRef, file);
         const pdfUrl = await getDownloadURL(storageRef);
@@ -616,15 +623,15 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
 
     return response.text();
   } catch (error) {
-    console.error('Error shortening URL:', error);
+   // console.error('Error shortening URL:', error);
     return url; // Return original URL if there's an error
   }
 },
     generateQRCode(pdfUrl = this.pdfUrl) {
 
       this.generatingQr = true
-      console.log('padfUrl: ' , pdfUrl);
-      console.log('Url: ' , this.url);
+     // console.log('padfUrl: ' , pdfUrl);
+     // console.log('Url: ' , this.url);
       const ispdfUrl = pdfUrl
   if (!this.url.trim() && !ispdfUrl) {
     this.$q.notify({
@@ -652,27 +659,27 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
       dataToAdd = pdfUrl;
     }
 
-    console.log('addFrame :'+this.addFrame)
+    //console.log('addFrame :'+this.addFrame)
     this.frameColor = this.borderColor;
-    console.log('screating qr')
+    //console.log('screating qr')
      this.showLoader = false
   if(this.url.trim() || this.pdfUrl){
     const qr = qrcode(0, 'H');
     qr.addData(dataToAdd);
     qr.make();
 
-    console.log(this.selectedFont)
+   // console.log(this.selectedFont)
     const numCells = qr.getModuleCount();
 
-    console.log("numcells : "+numCells)
+   // console.log("numcells : "+numCells)
     const cellSize = 140 / numCells;
 
-    console.log("cellSize : "+ cellSize)
+   // console.log("cellSize : "+ cellSize)
     const margin = cellSize * 7;
 
-    console.log("margin : "+ margin)
+   // console.log("margin : "+ margin)
     const size = numCells * cellSize + margin * 2;
-    console.log(size)
+   // console.log(size)
 
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -729,7 +736,7 @@ drawImageFrame(context, width, height,pdfUrl) {
     const canvasHeight = Math.max(height, imageHeight);
 
     const imageX = (canvasWidth - imageWidth) / 2;
-    console.log('imageX : '+imageX)
+   // console.log('imageX : '+imageX)
     const imageY = (canvasHeight - imageHeight) / 2;
 
     let qrX, qrY;
@@ -787,9 +794,9 @@ drawImageFrame(context, width, height,pdfUrl) {
       // Calculate the position to center the overlay image within the QR code
       const overlayImagSize = this.overlaySize; // Set the width of the overlay image
       const overlayImageX = qrX + (qrSize - overlayImagSize) / 2;
-      console.log('overlayImage : '+overlayImageX)
+     // console.log('overlayImage : '+overlayImageX)
       const overlayImageY = qrY + (qrSize - overlayImagSize) / 2;
-       console.log('overlayImage : '+overlayImageY)
+      // console.log('overlayImage : '+overlayImageY)
 
       // Draw the overlay image onto the canvas
       ctx.drawImage(this.overlayImageElement, overlayImageX, overlayImageY, overlayImagSize, overlayImagSize);
@@ -825,7 +832,7 @@ drawImageFrame(context, width, height,pdfUrl) {
           this.drawDoubleFrame(context, width, height, 3, this.borderColor);
           break;
         default:
-          console.log(this.selectedFrameStyle);
+          //console.log(this.selectedFrameStyle);
       }
 
     },
