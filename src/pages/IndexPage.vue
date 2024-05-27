@@ -315,9 +315,10 @@ export default {
       if(this.generatingQr){
        this.qrCodeDataUrl = ''
        this.url='empty'
-
-      }
-      }
+       }
+      } if(newVal)[
+        this.url = ''
+      ]
 
     },
     openPdf(newVal){
@@ -328,9 +329,12 @@ export default {
        this.qrCodeDataUrl = ''
        this.selectedPdfName =''
        this.pdfUrl='empty'
-        }
+       }
 
+      } if(newVal){
+        this.pdfUrl = ''
       }
+
 
     }
   },
@@ -453,7 +457,7 @@ export default {
 },
   checkUrl() {
 
-    const urlRegex = /^(http:\/\/|https:\/\/)[a-zA-Z0-9\-:._\/]+$/;
+    const urlRegex = /^(http:\/\/www\.|https:\/\/www\.)[a-zA-Z0-9\-:._\/]+$/;
 
   // Check if the URL matches the regular expression
   if (!urlRegex.test(this.url.trim())) {
@@ -631,13 +635,15 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
   }
 
   if (!this.error) {
-    if(this.url === 'empty'){
+    if(this.url === 'empty' ){
       this.url = ''
-       this.generatingQr = false
-    }else if (this.pdfUrl === 'empty' ){
-      this.pdfUrl = ''
-      this.generatingQr = false
+
     }
+    if(this.pdfUrl === 'empty' ){
+      this.pdfUrl = ''
+
+    }
+
     let dataToAdd = '';
     if ((this.url.trim() && this.openUrl) || (this.openPdf && !pdfUrl) ) {
       dataToAdd = this.url;
@@ -659,7 +665,7 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
     const numCells = qr.getModuleCount();
 
     console.log("numcells : "+numCells)
-    const cellSize = 120 / numCells;
+    const cellSize = 140 / numCells;
 
     console.log("cellSize : "+ cellSize)
     const margin = cellSize * 7;
@@ -716,8 +722,8 @@ drawImageFrame(context, width, height,pdfUrl) {
   const img = new Image();
 
   img.onload = () => {
-    const imageWidth = 200; // Set the width of the frame image
-    const imageHeight = 250; // Set the height of the frame image
+    const imageWidth = 220; // Set the width of the frame image
+    const imageHeight = 270; // Set the height of the frame image
 
     const canvasWidth = Math.max(width, imageWidth);
     const canvasHeight = Math.max(height, imageHeight);
@@ -749,7 +755,7 @@ drawImageFrame(context, width, height,pdfUrl) {
     qr.make();
 
     const numCells = qr.getModuleCount();
-    const cellSize = 120 / numCells;
+    const cellSize = 135 / numCells;
     const margin = cellSize * 7;
     const qrSize = numCells * cellSize + margin * 2;
 
@@ -761,7 +767,7 @@ drawImageFrame(context, width, height,pdfUrl) {
     if (this.selectedImageFramePath === '/scanMeBag.jpg' || this.selectedImageFramePath === '/scanMe1.jpg' || this.selectedImageFramePath === '/scanMe shapes.jpg') {
       qrY += 20; // Move QR code down for these frame images
     } else {
-      qrY -= 20; // Move QR code up for other frame images
+      qrY -= 22; // Move QR code up for other frame images
     }
 
 
@@ -918,7 +924,7 @@ drawImageFrame(context, width, height,pdfUrl) {
         } else  if(formate === 'pdf'){
           const doc = new jsPDF()
           imgData = canvas.toDataURL('image/jpeg')
-          doc.addImage(imgData,'JPEG',60 ,85, qrImage.width/2,qrImage.height/2)
+          doc.addImage(imgData,'JPEG',50 ,85, qrImage.width/2,qrImage.height/2)
           doc.save('QRCode.pdf')
           return
         }
@@ -975,7 +981,7 @@ body::-webkit-scrollbar {
 display:flex;
  justify-content:space-between;
   position: fixed;
-  top: 350px;
+  top: 400px;
 }
 .first-div{
   width:60%;
@@ -1002,7 +1008,7 @@ display:flex;
 }
 .download-btn{
   position: fixed;
-  top: 420px;
+  top: 450px;
 }
 /*.frames {
 
