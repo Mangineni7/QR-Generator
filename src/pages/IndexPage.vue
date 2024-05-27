@@ -516,7 +516,7 @@ export default {
     },
     closeColorPickerOnClickOutside(event) {
       // Check if the click occurred outside the color picker or its button
-     if (!this.$refs.colorPicker1.contains(event.target) && !this.$refs.colorPicker2.contains(event.target)) {
+     if (this.$refs.colorPicker1 && !this.$refs.colorPicker1.contains(event.target) && !this.$refs.colorPicker2.contains(event.target)) {
         this.showFgColorPicker = false;
         this.showBgColorPicker = false;
     document.removeEventListener('click', this.closeColorPickerOnClickOutside);
