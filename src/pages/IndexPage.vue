@@ -587,9 +587,9 @@ if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontP
         alert('Please select pdf file')
       }
 
-      this.selectedPdfName = file.name
-      // Upload the selected PDF file to Firebase Storage
-      this.files= file
+      // this.selectedPdfName = file.name
+      // // Upload the selected PDF file to Firebase Storage
+      // this.files= file
     },
     async uploadPdfToFirebase(file) {
       if(!file){
@@ -832,7 +832,7 @@ drawImageFrame(context, width, height,pdfUrl) {
           this.drawDoubleFrame(context, width, height, 3, this.borderColor);
           break;
         default:
-          //console.log(this.selectedFrameStyle);
+          // console.log(this.selectedFrameStyle);
       }
 
     },
