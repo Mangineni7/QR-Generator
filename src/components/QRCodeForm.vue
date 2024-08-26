@@ -55,7 +55,7 @@
         </div>
         <div v-if="qrCodeDataUrl&&this.addColors  && !showLoader">
         <div ref="colorPicker1" >
-        <q-color @click="generateQRStyles" v-model="fgColor" v-if="showFgColorPicker" class="color-picker-overlay1" />
+        <q-color @click="generateQRStyles" v-model="fgColor" v-if="showFgColorPicker" class="generateQRCode-overlay1" />
         </div>
         <div  ref="colorPicker2" >
         <q-color @click="generateQRStyles"  v-model="bgColor" v-if="showBgColorPicker" class="color-picker-overlay2" />

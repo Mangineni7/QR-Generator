@@ -1,7 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lff">
     <q-header elevated style="background-color:rgb(43, 192, 185);">
-      <q-toolbar style="flex-grow: 1;">
+
+      <q-toolbar >
         <q-btn
           flat
           dense
@@ -12,9 +13,9 @@
           style="color: white"
         />
 
-
+        <div class="flex justify-between" style="flex-grow:1">
         <div class="flex justify-between q-ml-xl">
-        <div :class="{'selected':this.$store.state.openUrl}" class="flex flex-center">
+        <div :class="{'selected':this.$store.state.openUrl}" class="flex flex-center"  v-if="visiable">
           <img src="/world-wide-web_1006771.png" style="width:20px;height:20px;">
         <q-btn
           flat
@@ -25,7 +26,7 @@
         />
         </div>
 
-        <div class="q-ml-xl flex flex-center" :class="{'selected':this.$store.state.openPdf}">
+        <div class="q-ml-xl flex flex-center" :class="{'selected':this.$store.state.openPdf}"  v-if="visiable ">
          <img src="/pdf_4726010.png" style="width:22px;height:22px">
         <q-btn
           flat
@@ -35,6 +36,34 @@
           @click="togglePdf"
         />
            </div>
+
+        </div>
+        <div class="flex justify-between">
+        <div>
+          <q-btn
+          flat
+          dense
+          icon="download"
+          aria-label="Download"
+          @click="downloads"
+          class="downloads">
+          <q-tooltip>Downloads</q-tooltip>
+          </q-btn>
+        </div>
+        <div>
+        <q-btn
+        flat
+        dense
+        icon="logout"
+
+        aria-label="Logout"
+        @click=" logout"
+        class="logout-content">
+        <q-tooltip>Logout</q-tooltip>
+
+        </q-btn>
+      </div>
+        </div>
 
         </div>
 
@@ -54,17 +83,29 @@
         >
 
         </q-item-label>
-        <div>
+         <div v-if="!visiableStyles">
+           <h5  style="color: white ;font-weight:bold;text-align:center"> Downloads</h5>
+           <div class="button q-mt-xl" @click="toggleBack "> Go Back
+
+           </div>
+        </div>
+        <div style="margin-left:70px;" v-if="visiableStyles">
+          <img src="/icons/proxima.png" alt="img" style="width:150px;height:50px;border-radius:25px" />
+        </div>
+        <div v-if="visiableStyles">
           <h5  style="color: white ;font-weight:bold;text-align:center"> Styles</h5>
         </div>
 
-        <div class="button-container q-gutter-sm">
+        <div class="button-container q-gutter-sm" v-if="visiableStyles" >
+
           <div class="button" @click="toggleAddColors() ">Add Color</div>
           <div class="button" @click="toggleAddFrame() ">Add Frame</div>
           <div class="button" @click="toggleAddSvg() ">Add Svg</div>
           <div class="button" @click="toggleAddImg() ">Add Logo</div>
+          <!-- <div class="button" @click="toggleBack() ">
+            Go Back</div> -->
         </div>
-        <!-- <EssentialLink
+        <!-- <EssentialLink>
           v-for="link in essentialLinks"
           :key="link.title"
           v-bind="link"
@@ -84,8 +125,9 @@
 
 <script>
 import { useStore } from 'vuex'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref ,onBeforeMount, computed, onMounted } from 'vue'
 import {  Notify } from 'quasar'
+import { useRouter } from 'vue-router'
 
 //import EssentialLink from 'components/EssentialLink.vue'
 
@@ -144,19 +186,38 @@ export default defineComponent({
 
   },
 
-  setup () {
+  setup (){
+     const store = useStore()
+
+    const router = useRouter()
     const leftDrawerOpen = ref(false)
+    const visiable =computed(() => store.state.setVisiable)
+     const visiableStyles = computed(() => store.state.editValue )
+
+
     // const store = useStore()
     // // function togglAddFrame() {
     // //   store.dispatch('toggleFrame')
     // // }
-    const store = useStore()
 
+
+    onBeforeMount(() => {
+      console.log("mountedmains :"+ store.state.editValue);
+      router.beforeEach((to, from, next) => {
+        if (to.path !== '/downloads') {
+           visiable.value= store.commit('toggleSetVisiable', true)
+          visiableStyles.value = store.commit('toggleEdits' ,true) // Set visiable to true for other routes
+          //store.commit("toggleEdits", true)
+        }
+
+        next()
+      })
+    })
 
 
     const  toggleAddFrame = () => {
 
-       if(store.state.qrCode === null){
+       if(store.state.qrCode === null ){
         Notify.create({
           message:'Please Enter Url or Pdf And Create Qr Code',
           color:'negative'
@@ -164,14 +225,16 @@ export default defineComponent({
         return
        }
       store.dispatch('toggleFrame')
-       console.log("store "+ store.state.addFrames)
+      console.log("store frames :", store.state.addFrames);
+
+       //console.log("store "+ store.state.addFrames)
         if(window.innerWidth < 1000) {
          hideDrawer()
        }
        }
     const  toggleAddSvg = () => {
-      if(store.state.qrCode ===null){
-
+      if(store.state.qrCode ===null ){
+          console.log("shannu :");
         Notify.create({
           message:'Please Enter Url or Pdf And Create Qr Code',
           color:'negative'
@@ -179,14 +242,16 @@ export default defineComponent({
         return
       }
       store.dispatch('toggleSvg')
-       console.log("store "+ store.state.addSvg)
+      console.log("svgg :", store.state.addSvg);
+
+      // console.log("store "+ store.state.addSvg)
        if(window.innerWidth < 1000) {
          hideDrawer()
        }
       }
 
     const  toggleAddImg = () => {
-      if(store.state.qrCode === null){
+      if(store.state.qrCode === null ){
 
         Notify.create({
           message:'Please Enter Url or Pdf And Create Qr Code',
@@ -195,7 +260,7 @@ export default defineComponent({
         return
       }
       store.dispatch('toggleImg')
-       console.log("store "+ store.state.addImg)
+       //console.log("store "+ store.state.addImg)
         if(window.innerWidth < 1000) {
          hideDrawer()
        }
@@ -210,7 +275,7 @@ export default defineComponent({
         return
       }
       store.dispatch('toggleAddColors')
-       console.log("store "+ store.state.adColors)
+       //console.log("store "+ store.state.adColors)
         if(window.innerWidth < 1000) {
          hideDrawer()
        }
@@ -227,6 +292,25 @@ export default defineComponent({
 
     const hideDrawer = () => {
       leftDrawerOpen.value = false
+    }
+
+    const logout = () => {
+      localStorage.removeItem('token')
+      router.push('/')
+    }
+    const downloads = () =>{
+     visiable.value = false
+      store.commit('toggleEdits', false)
+      console.log('store :'+ store.state.editValue);
+      router.push('/downloads')
+    }
+    const toggleBack = () =>{
+      store.commit('toggleQrCodeDataUrl','')
+      store.commit('toggleEdits', true)
+      store.commit('toggleUrls', '')
+      console.log(" qrcodedata url    ::: "+ store.state.editValue);
+      router.push('/mainLayout')
+
     }
 
     // watch(
@@ -248,13 +332,29 @@ export default defineComponent({
       hideDrawer,
       togglePdf,
       toggleUrl,
-      toggleAddColors
+      toggleAddColors,
+      logout,
+      downloads,
+      toggleBack,
+      visiable,
+      visiableStyles
 
     }
   }
 })
 </script>
 <style scoped>
+.downloads{
+  margin-right: 15px;
+}
+.header-content{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+ width: 100%;
+}
+
+
 .button{
   color: white;
   text-align: center;

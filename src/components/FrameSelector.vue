@@ -22,12 +22,12 @@
       </div>
         </div>
       <div  class="q-mt-xl flex justify-between" style="width:100%" >
-          <q-input filled v-model="borderColor" @input="generateQRCode" label="Frame Color" class="addStyles" required >
+          <q-input filled v-model="borderColor"  label="Frame Color" class="addStyles" required >
             <template v-slot:append>
-              <q-btn icon="palette" @click="showColorPickerFrame" class="color-picker"  :style="{backgroundColor:borderColor}" />
+              <q-btn icon="brush" @click="showColorPickerFrame" class="color-picker"  :style="{backgroundColor:borderColor}" />
             </template>
           </q-input>
-           <q-btn @click="generateQRCode" label="Add Frame Color" color="positive" class="addStyles" />
+           <q-btn  label="Add Frame Color" color="positive" class="addStyles" />
             <div ref="picker1">
             <q-color @click="generateQrCodes" v-model="borderColor" v-if="showFrameColorPicker"  class="color-picker-overlay3" />
             </div>
@@ -35,14 +35,14 @@
          <div class=" q-mt-md flex justify-between " style="width:100%" >
           <q-input @keyup="generateQrCodes" filled v-model="text"  label="Text" class="text" >
             <template v-slot:append>
-                <q-btn icon="font_download" @click="toggleFontOptions" />
+                <q-btn icon="font_download" @click="toggleFontOptions" class="color-picker" />
            </template>
           </q-input>
 
 
          <q-input filled v-model="textcolor" label="Text-color" class="text bgInput" >
           <template v-slot:append>
-            <q-btn icon="palette" @click="showTextColor" class="color-picker" :style="{backgroundColor:textcolor}"></q-btn>
+            <q-btn icon="brush" @click="showTextColor" class="color-picker" :style="{backgroundColor:textcolor}"></q-btn>
           </template>
          </q-input>
          <div ref="picker2">
@@ -65,15 +65,12 @@
 
 <script>
   export default {
-    data(){
 
-      return{
+    data(){
+      return {
         showFrameColorPicker:false,
         showtextColorPicker:false,
         fontSelector:false,
-        text:'Scan me',
-        borderColor: '#000000',
-        textcolor:'#FFFFFF',
      fontOptions: [ 'Arial, sans-serif' ,'Helvetica, sans-serif'  , 'Times New Roman, serif' ,
                     'Courier New, monospace' , 'Verdana, Geneva, sans-serif' ,'Georgia, serif',
                     'Palatino, serif','Garamond, serif',  'Bookman, serif',
@@ -83,6 +80,33 @@
       }
 
     },
+computed:{
+  text:{
+    get(){
+      return this.$store.state.text
+    },
+    set(value){
+       this.$store.commit('toggleText', value)
+    }
+  },
+  borderColor:{
+    get(){
+      return this.$store.state.borderColor
+    },
+    set(value){
+       this.$store.commit('toggleBorderColor', value)
+    }
+  },
+  textcolor:{
+    get(){
+      return this.$store.state.textColor
+    },
+    set(value){
+       this.$store.commit('toggleTextColor', value)
+    }
+  }
+
+},
   methods: {
     generateQrCodes(){
       this.$emit('callGenerate-Qr',{borderColor:this.borderColor, textColor:this.textcolor, text:this.text})
@@ -136,7 +160,7 @@ closeColorPicker(event) {
     return;
   }
 if (!picker1.contains(event.target) && !picker2.contains(event.target) && !fontPicker.contains(event.target)) {
-    console.log("click event ");
+   // console.log("click event ");
     this.showFrameColorPicker = false;
     this.showtextColorPicker = false;
     this.fontSelector = false;

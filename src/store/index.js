@@ -21,7 +21,21 @@ export default store(function (/* { ssrContext } */) {
        openUrl:true,
        openPdf:false,
        qrCode:null,
-       addColors:false
+       addColors:false,
+       editValue:true,
+       qrCodeDataUrl:'',
+       visiable:true,
+       url:'',
+       pdf:'',
+       setVisiable:true,
+       fgColor:'#000000',
+       bgColor:'#FFFFFF',
+       overLayImg:null,
+       frame:'',
+       borderColor:'#000000',
+       frameColor:'',
+       textColor:'#FFFFFF',
+       text:'Scan me'
     },
     mutations:{
       toggleFrame(state) {
@@ -79,8 +93,46 @@ export default store(function (/* { ssrContext } */) {
       },
       toggleQrcode(state, value){
         state.qrCode = value
-      }
+      },
+      toggleEdits(state,value){
+        state.editValue = value
+      },
+      toggleQrCodeDataUrl(state , value){
 
+        state.qrCodeDataUrl = value
+      },
+     toggleUrls(state,value){
+      state.url = value
+      state.pdf = value
+
+     },
+     toggleSetVisiable(state,value){
+        state.setVisiable = value
+     },
+     toggleFrameStyle(state,value){
+      state.frame= value
+     },
+     toggleFg(state,value){
+      state.fgColor= value
+     },
+     toggleBg(state,value){
+      state.bgColor = value
+     },
+     toggleFrameColor(state,value){
+      state.frameColor = value
+     },
+     toggleTextColor(state,value){
+      state.textColor = value
+     },
+     toggleText(state,value){
+      state.text =value
+     },
+     toggleOverLay(state,value){
+      state.overLayImg = value
+     },
+     toggleBorderColor(state,value){
+      state.borderColor = value
+     }
     },
     actions:{
       toggleFrame({commit}) {
@@ -100,7 +152,32 @@ export default store(function (/* { ssrContext } */) {
       },
       toggleAddColors({commit}){
         commit('toggleAddColors')
+      },
+      toggleFg({commit}){
+        commit('toggleFg')
+      },
+      toggleBg({commit}){
+        commit('toggleBg')
+      },
+      toggleFrameStyle({commit}){
+        commit('toggleFrameStyle')
+      },
+      toggleTextColor({commit}){
+        commit('toggleTextColor')
+      },
+      toggleText({commit}){
+        commit('toggleText')
+      },
+      toggleFrameColor({commit}){
+        commit('toggleFrameColor')
+      },
+      toggleBorderColor({commit}){
+        commit('toggleBorderColor')
+      },
+      toggleOverLay({commit}){
+        commit('toggleOverLay')
       }
+
 
     },
     modules: {
