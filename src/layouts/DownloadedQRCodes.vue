@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import LZString from 'lz-string'
 import axios from 'axios'
 import jsPDF from 'jspdf'
 export default {
@@ -45,12 +46,22 @@ export default {
     const token = localStorage.getItem('token')
   if(token){
     try{
-    const response = await axios.get('http://localhost:3000/getQrLinks',{
-      headers:{
-        Authorization:token
-      }
-    })
-     this.qrLinks = response.data.qrLinks
+    // const response = await axios.get('http://localhost:3000/getQrLinks',{
+    //   headers:{
+    //     Authorization:token
+    //   }
+    // })
+    //this.qrLinks = response.data.qrLinks
+    const storedLinks = localStorage.getItem('qrLinks');
+    if(storedLinks){
+      const decompressedLinks = LZString.decompress(storedLinks)
+       this.qrLinks = JSON.parse(decompressedLinks);
+    } else{
+       this.qrLinks =[];
+
+    }
+
+
   }
   catch(err){
     this.$q.notify({
@@ -121,15 +132,17 @@ methods:{
         return;
       }
 
-      const linkToRemove = this.qrLinks[index];
+      // const linkToRemove = this.qrLinks[index];
       this.qrLinks.splice(index, 1); // Remove from local state
 
       try {
-        await axios.post(
-          'http://localhost:3000/removeQrLink',
-          { link: linkToRemove },
-          { headers: { Authorization: token } }
-        );
+        // await axios.post(
+        //   'http://localhost:3000/removeQrLink',
+        //   { link: linkToRemove },
+        //   { headers: { Authorization: token } }
+        // );
+
+        localStorage.setItem('qrLinks', JSON.stringify(this.qrLinks));
         this.$q.notify({
           type: 'positive',
           message: 'QR link removed successfully.',

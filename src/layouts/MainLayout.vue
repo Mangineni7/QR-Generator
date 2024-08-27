@@ -39,7 +39,7 @@
 
         </div>
         <div class="flex justify-between">
-        <div>
+        <!-- <div>
           <q-btn
           flat
           dense
@@ -49,7 +49,7 @@
           class="downloads">
           <q-tooltip>Downloads</q-tooltip>
           </q-btn>
-        </div>
+        </div> -->
         <div>
         <q-btn
         flat

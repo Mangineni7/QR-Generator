@@ -15,6 +15,7 @@ const routes = [
       { path:'/downloads', component: () =>  import('layouts/DownloadedQRCodes.vue')}
     ]
   },
+
   // Always leave this as last one,
   // but you can also remove it
   {

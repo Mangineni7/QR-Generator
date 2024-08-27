@@ -97,22 +97,42 @@ export default {
      async signIn() {
       if (this.signInUsername.trim() !== '' && this.signInPassword.trim() !== '') {
         try {
-          const response = await axios.post('http://localhost:3000/signin', {
-            username: this.signInUsername,
-            password: this.signInPassword,
-          });
+          // const response = await axios.post('http://localhost:3000/signin', {
+          //   username: this.signInUsername,
+          //   password: this.signInPassword,
+          // });
 
-          const token = response.data.token
-        console.log("back end :" + token)
-       localStorage.setItem('token', token);
+      //     const token = response.data.token
+      //   console.log("back end :" + token)
+      //  localStorage.setItem('token', token);
 
-          this.$q.notify({
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const user = users.find(
+        user => user.username === this.signInUsername && user.password === this.signInPassword
+      );
+      if(user){
+        localStorage.setItem('token', JSON.stringify({ username: user.username, loggedIn: true }));
+        this.$q.notify({
             type: 'positive',
             message: 'Login Successfully!',
           });
+
+          // this.$q.notify({
+          //   type: 'positive',
+          //   message: 'Login Successfully!',
+          // });
+
           this.$router.push('/mainLayout');
           this.signInUsername = '';
           this.signInPassword = '';
+        }
+        else{
+          this.$q.notify({
+          type: 'negative',
+          message: 'User Not Exist',
+        });
+
+        }
         } catch (error) {
           this.$q.notify({
             type: 'negative',
@@ -130,15 +150,27 @@ export default {
       if (this.signUpUsername.trim() !== '' && this.signUpPassword.trim() !== '' && this.signUpEmail.trim() !== '') {
         if (!this.error) {
           try {
-            const response = await axios.post('http://localhost:3000/signup', {
-              username: this.signUpUsername,
-              email: this.signUpEmail,
-              password: this.signUpPassword,
-            });
+            // const response = await axios.post('http://localhost:3000/signup', {
+            //   username: this.signUpUsername,
+            //   email: this.signUpEmail,
+            //   password: this.signUpPassword,
+            // });
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+        const userExists = users.some(user => user.username === this.signUpUsername || user.email === this.signUpEmail);
+          if(!userExists){
+           users.push({
+            username: this.signUpUsername,
+            email: this.signUpEmail,
+            password: this.signUpPassword,
+
+           })
+          localStorage.setItem('users', JSON.stringify(users))
+
             this.$q.notify({
               type: 'positive',
               message: 'Signup Successfully! Please sign in.',
             });
+          }
             this.signUpUsername = '';
             this.signUpPassword = '';
             this.signUpEmail = '';
@@ -167,11 +199,58 @@ export default {
 };
 </script>
 
-<style >
-.error-message{
-  margin-left: -45px;
-  color:rgb(247, 240, 239)
+<style>
+@media screen and  (max-width: 500px) {
+  .auth-container {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    display: flex;
+  }
+
+  .auth-form {
+     max-width: 100%;
+    position: relative;
+    transform: none;
+    z-index: 1; /* Make sure it appears above the slide content */
+  }
+
+  .auth-slide {
+    visibility: hidden;
+  }
+
+  .form-content {
+    width: 100%; /* Ensure form content takes full width */
+    padding: 0 20; /* Add padding for better alignment */
+  }
+
+  .slide-content {
+    display: none; /* Ensure slide content is hidden */
+  }
+
+  /* Ensure these transform properties are applied for smaller screens */
+  .slide-left.auth-form {
+    transform: translateX(0) !important;
+  }
+
+  .slide-right.auth-form {
+    transform: translateX(0) !important;
+  }
+
+  .slide-left.auth-slide {
+    transform: translateX(0) !important;
+  }
+
+  .slide-right.auth-slide {
+    transform: translateX(0) !important;
+  }
 }
+
+.error-message {
+  margin-left: -45px;
+  color: rgb(247, 240, 239);
+}
+
 .auth-container {
   width: 700px;
   height: 500px;
@@ -190,7 +269,7 @@ export default {
   justify-content: center;
   transition: transform 0.5s ease;
   position: absolute;
-  top:0;
+  top: 0;
   bottom: 0;
   width: 50%;
 }
@@ -230,7 +309,7 @@ export default {
 }
 
 .full-width {
-  max-width:50%;
+  max-width: 50%;
   margin-top: 20px;
 }
 
@@ -245,15 +324,18 @@ export default {
   margin-top: 10px;
   border-radius: 10px;
 }
+
 .q-field__control {
   height: 45px;
   width: 250px;
   border: 1px solid rgb(114, 22, 175);
   color: rgb(114, 22, 175);
 }
+
 .q-field__label {
   left: 0;
   top: 10px;
   max-width: 100%;
 }
+
 </style>

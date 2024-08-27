@@ -26,6 +26,7 @@
     "fs": "^0.0.1-security",
     "jspdf": "^2.5.1",
     "lodash": "^4.17.21",
+    "lz-string": "^1.5.0",
     "pako": "^2.1.0",
     "qrcode-generator": "^1.4.4",
     "quasar": "^2.8.0",

@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import LZString from 'lz-string'
 import qrcode from 'qrcode-generator'
 import jsPDF from 'jspdf'
 import FrameSelector from 'src/components/FrameSelector.vue';
@@ -691,6 +692,8 @@ drawImageFrame(context, width, height,pdfUrl) {
       });
       return;
     }
+    //  const compressedData = LZString.compress(JSON.stringify(qrLink));
+    // localStorage.setItem('qrLinks', compressedData)
 
 
     await axios.post("http://localhost:3000/storeQrLink", {qrLink}, {
