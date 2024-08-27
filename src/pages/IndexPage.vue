@@ -680,41 +680,41 @@ drawImageFrame(context, width, height,pdfUrl) {
       context.fillRect(frameWidth * 2, frameWidth * 2, frameWidth, innerHeight);
       context.fillRect(width - frameWidth * 3, frameWidth * 2, frameWidth, innerHeight);
     },
- async storeQrLink(qrLink) {
-  try {
-    const token = localStorage.getItem("token"); // Assuming you store the token in local storage
-    console.log("Token (frontend):", token);
+//  async storeQrLink(qrLink) {
+//   try {
+//     const token = localStorage.getItem("token"); // Assuming you store the token in local storage
+//     console.log("Token (frontend):", token);
 
-    if (!token) {
-      this.$q.notify({
-        color: 'negative',
-        message: 'You need to log in first.',
-      });
-      return;
-    }
-    //  const compressedData = LZString.compress(JSON.stringify(qrLink));
-    // localStorage.setItem('qrLinks', compressedData)
-
-
-    await axios.post("http://localhost:3000/storeQrLink", {qrLink}, {
-      headers: {
-        Authorization: token,
-      },
-    });
+//     if (!token) {
+//       this.$q.notify({
+//         color: 'negative',
+//         message: 'You need to log in first.',
+//       });
+//       return;
+//     }
+//     //  const compressedData = LZString.compress(JSON.stringify(qrLink));
+//     // localStorage.setItem('qrLinks', compressedData)
 
 
-    this.$q.notify({
-      color: 'positive',
-      message: 'QR link stored successfully.',
-    });
-  } catch (error) {
-    console.log(error);
-    this.$q.notify({
-      color: 'negative',
-      message: 'Failed to store QR link.',
-    });
-  }
-},
+//     await axios.post("http://localhost:3000/storeQrLink", {qrLink}, {
+//       headers: {
+//         Authorization: token,
+//       },
+//     });
+
+
+//     this.$q.notify({
+//       color: 'positive',
+//       message: 'QR link stored successfully.',
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     this.$q.notify({
+//       color: 'negative',
+//       message: 'Failed to store QR link.',
+//     });
+//   }
+// },
 
     downloadQRCode(formate) {
       if (!this.qrCodeDataUrl) {
@@ -782,7 +782,7 @@ drawImageFrame(context, width, height,pdfUrl) {
           imgData = canvas.toDataURL('image/jpeg')
           doc.addImage(imgData,'JPEG',50 ,85, qrImage.width/2,qrImage.height/2)
           doc.save('QRCode.pdf')
-          this.storeQrLink(imgData)
+          //this.storeQrLink(imgData)
           return
         }
 

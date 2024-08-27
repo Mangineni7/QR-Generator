@@ -27,7 +27,6 @@
 </template>
 
 <script>
-import LZString from 'lz-string'
 import axios from 'axios'
 import jsPDF from 'jspdf'
 export default {
@@ -46,21 +45,14 @@ export default {
     const token = localStorage.getItem('token')
   if(token){
     try{
-    // const response = await axios.get('http://localhost:3000/getQrLinks',{
-    //   headers:{
-    //     Authorization:token
-    //   }
-    // })
-    //this.qrLinks = response.data.qrLinks
-    const storedLinks = localStorage.getItem('qrLinks');
-    if(storedLinks){
-      const decompressedLinks = LZString.decompress(storedLinks)
-       this.qrLinks = JSON.parse(decompressedLinks);
-    } else{
-       this.qrLinks =[];
-
-    }
-
+    const response = await axios.get('http://localhost:3000/getQrLinks',{
+      headers:{
+        Authorization:token
+      }
+    })
+    this.qrLinks = response.data.qrLinks
+    // const storedLinks = localStorage.getItem('qrLinks');
+    //  this.qrLinks = storedLinks ? JSON.parse(storedLinks) : [];
 
   }
   catch(err){
